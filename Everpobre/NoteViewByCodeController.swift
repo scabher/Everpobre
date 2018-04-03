@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
     let dateLabel = UILabel()
     let expirationDate = UILabel()
@@ -22,6 +22,8 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
     var rightImgConstraint: NSLayoutConstraint!
     
     var relativePoint: CGPoint!
+    
+    var note: Note?
     
     override func loadView() {
         let backView = UIView()
@@ -176,6 +178,8 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        titleTextField.delegate = self
+        
         // MARK: Navigation Controller
         navigationController?.isToolbarHidden = false
         
@@ -184,7 +188,7 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         let mapBarButton = UIBarButtonItem(title: "Map", style: .done, target: self, action: #selector(addMap))
 
         // Para posicionar botones en el Toolbar
-        let fixSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        //let fixSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 
         self.setToolbarItems([photoBarButton, flexibleSpace, mapBarButton], animated: false)
@@ -214,6 +218,12 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         // porque se activa cuando lleva pulsado un rato, así se evita moverlo por error.
         let moveViewGesture = UILongPressGestureRecognizer(target: self, action: #selector(userMoveImage))
         imageView.addGestureRecognizer(moveViewGesture)
+        
+        // MARK: About Note
+        if note != nil {
+            titleTextField.text = note?.title
+            noteTextView.text = note?.content
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -327,5 +337,11 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         picker.dismiss(animated: true, completion: nil)
     }
     
+    // MARK: TextField Delegate
+    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextFieldDidEndEditingReason) {
+        note?.title = textField.text
+        
+        try! note?.managedObjectContext?.save()
+    }
     
 }
