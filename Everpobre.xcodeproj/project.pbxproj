@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */; };
 		3F57A95A205871D300000633 /* ManagedObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F57A959205871D300000633 /* ManagedObjects.swift */; };
 		3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DED205718BF005407AE /* Everpobre.xcdatamodeld */; };
 		3F786DF1205720A3005407AE /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DF0205720A3005407AE /* DataManager.swift */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Additions.swift"; sourceTree = "<group>"; };
 		3F57A959205871D300000633 /* ManagedObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjects.swift; sourceTree = "<group>"; };
 		3F786DEE205718BF005407AE /* Everpobre.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Everpobre.xcdatamodel; sourceTree = "<group>"; };
 		3F786DF0205720A3005407AE /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
@@ -63,6 +65,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F4F899F207833F400DA0B4C /* UIKitExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */,
+			);
+			path = UIKitExtensions;
+			sourceTree = "<group>";
+		};
 		3F57A958205871AD00000633 /* ManagedObject */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,6 +111,7 @@
 		3F7E03F82051CEF300FB37A8 /* Everpobre */ = {
 			isa = PBXGroup;
 			children = (
+				3F4F899F207833F400DA0B4C /* UIKitExtensions */,
 				3F786DEC20571790005407AE /* Model */,
 				3F7E03F92051CEF300FB37A8 /* AppDelegate.swift */,
 				3F7E04002051CEF300FB37A8 /* Assets.xcassets */,
@@ -221,6 +232,7 @@
 				3F57A95A205871D300000633 /* ManagedObjects.swift in Sources */,
 				3F786DF1205720A3005407AE /* DataManager.swift in Sources */,
 				3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */,
+				3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */,
 				3F786DF320572F95005407AE /* NoteTableViewController.swift in Sources */,
 				3F7E041B2051CF9400FB37A8 /* NoteViewController.swift in Sources */,
 				3F7E03FA2051CEF300FB37A8 /* AppDelegate.swift in Sources */,

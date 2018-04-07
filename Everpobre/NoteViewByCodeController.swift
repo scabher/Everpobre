@@ -8,14 +8,15 @@
 
 import UIKit
 
-class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
+class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate {
     
+    // Mark: - Properties
     let dateLabel = UILabel()
     let expirationDate = UILabel()
     let titleTextField = UITextField()
     let noteTextView = UITextView()
-    
     let imageView = UIImageView()
+    
     var topImgConstraint: NSLayoutConstraint!
     var bottomImgConstraint: NSLayoutConstraint!
     var leftImgConstraint: NSLayoutConstraint!
@@ -48,6 +49,7 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         // Configure imageView
         imageView.backgroundColor = .red
         backView.addSubview(imageView)
+        
         
         // MARK: Autolayout
         // No traslada las autoresize rules to constraints
@@ -185,7 +187,7 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         
         let photoBarButton = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(pickPhoto))
         
-        let mapBarButton = UIBarButtonItem(title: "Map", style: .done, target: self, action: #selector(addMap))
+        let mapBarButton = UIBarButtonItem(title: "Map", style: .done, target: self, action: #selector(addLocation))
 
         // Para posicionar botones en el Toolbar
         //let fixSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
@@ -202,6 +204,7 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         imageView.transform = CGAffineTransform(rotationAngle: 45)
         */
 
+        // MARK: Gestures
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(closeKeyboard))
         swipeGesture.direction = .down
         
@@ -235,7 +238,7 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         if noteTextView.isFirstResponder {      // Es la vista que está como primer respondedor
             noteTextView.resignFirstResponder() // Deja de ser el primer respondedor al gesto
         }
-        else {
+        else if titleTextField.isFirstResponder {
             titleTextField.resignFirstResponder()
         }
     }
@@ -325,23 +328,48 @@ class NoteViewByCodeController: UIViewController, UIImagePickerControllerDelegat
         present(actionSheetAlert, animated: true, completion: nil)
     }
     
-    @objc func addMap() {
+    @objc func addLocation()
+    {
         
     }
     
-    // MARK: Image Picker Delegate
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        let image = info[UIImagePickerControllerOriginalImage] as! UIImage
+    // Mark: - Sync
+    func syncModelWithView() {
+        // Model -> View
+        titleTextField.text = note?.title
+        noteTextView.text = note?.content
+    }
+}
+
+//MARK: NotesTableViewController Delegate
+extension NoteViewByCodeController: NotesTableViewControllerDelegate {
+    func notesTableViewController(_ vc: NotesTableViewController, didSelectNote note: Note) {
+        let collapsed = splitViewController?.isCollapsed ?? true
         
+        self.note = note
+        syncModelWithView()
+        
+        if (collapsed) {
+            navigationController?.popToViewController(self, animated: true)
+        }
+    }
+}
+
+// MARK: Image Picker Delegate
+extension NoteViewByCodeController: UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        let image = info[UIImagePickerControllerOriginalImage] as! UIImage
         imageView.image = image
         picker.dismiss(animated: true, completion: nil)
     }
-    
-    // MARK: TextField Delegate
-    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextFieldDidEndEditingReason) {
+}
+
+// MARK: TextField Delegate
+extension NoteViewByCodeController: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         note?.title = textField.text
-        
         try! note?.managedObjectContext?.save()
     }
-    
 }

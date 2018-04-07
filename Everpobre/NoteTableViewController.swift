@@ -9,12 +9,19 @@
 import UIKit
 import CoreData
 
-class NotesTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+// Delegado para comunicar este VC con el VC del detalle de la nota
+protocol NotesTableViewControllerDelegate: class {
+    // should, will, did
+    func notesTableViewController(_ vc: NotesTableViewController, didSelectNote: Note)
+}
+
+class NotesTableViewController: UITableViewController {
     
-//    var noteList:[Note] = []  // Se sustituye por fetchedResultController
-//    var observer: NSObjectProtocol?
+    // var noteList:[Note] = []  // Se sustituye por fetchedResultController
+    // var observer: NSObjectProtocol?
     
     var fetchedResultController: NSFetchedResultsController<Note>!
+    weak var delegate: NotesTableViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,7 +29,7 @@ class NotesTableViewController: UITableViewController, NSFetchedResultsControlle
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewNote))
         
         // Fetch Request
-        let viewMOC = DataManager.sharedManager.persistenceContainer.viewContext
+        let viewMOC = DataManager.sharedManager.persistentContainer.viewContext
         
         // Forma antigua
         // 1.- Creamos el objeto
@@ -47,6 +54,8 @@ class NotesTableViewController: UITableViewController, NSFetchedResultsControlle
         let predicate = NSPredicate(format: "createdAtTI >= %f", created24H)    // Puede usarse cualquier expresión SQL
         fetchRequest.predicate = predicate
         
+        fetchRequest.fetchBatchSize = 25
+        
         // 5.- Ejecutamos la request
         // try! noteList = viewMOC.fetch(fetchRequest)
         
@@ -56,10 +65,6 @@ class NotesTableViewController: UITableViewController, NSFetchedResultsControlle
         try! fetchedResultController.performFetch()
         
         fetchedResultController.delegate = self
-        
-//        observer = NotificationCenter.default.addObserver(forName: Notification.Name.NSManagedObjectContextDidSave, object: nil, queue: OperationQueue.main, using: {(notification) in
-//            self.tableView.reloadData()
-//        })
     }
     
 //    denit {
@@ -87,8 +92,6 @@ class NotesTableViewController: UITableViewController, NSFetchedResultsControlle
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-//        return noteList.count
         return fetchedResultController.sections![section].numberOfObjects
     }
     
@@ -100,56 +103,48 @@ class NotesTableViewController: UITableViewController, NSFetchedResultsControlle
             cell = UITableViewCell(style: .default, reuseIdentifier: "reuseIdentifier")
         }
         
-//        cell?.textLabel?.text = noteList[indexPath.row].title
         cell?.textLabel?.text = fetchedResultController.object(at: indexPath).title
         
         return cell!
     }
     
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let noteViewController = NoteViewByCodeController()
-//        noteViewController.note = noteList[indexPath.row]
-        noteViewController.note = fetchedResultController.object(at: indexPath)
-        navigationController?.pushViewController(noteViewController, animated: true)
+        // Se obtiene la nota seleccionada
+        let note = fetchedResultController.object(at: indexPath)
+        
+        // Usando splitViewController
+        // Se notifica la nueva nota seleccionada en la lista de notas
+        delegate?.notesTableViewController(self, didSelectNote: note)
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return fetchedResultController.sections![section].name
     }
+}
+
+extension NotesTableViewController: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        tableView.reloadData()
+    }
     
     @objc func addNewNote()  {
-        
-        let privateMOC = DataManager.sharedManager.persistenceContainer.newBackgroundContext()
+        // Tradicionalmente.
+        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         
         // Asíncrono
         privateMOC.perform {
-            let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: DataManager.sharedManager.persistenceContainer.viewContext) as! Note
-            
             // KVC
-            let dict = ["main_title": "Nueva nota from KVC", "createdAtTI": Date().timeIntervalSince1970] as [String : Any]
-            note.setValuesForKeys(dict)
+            let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: privateMOC) as! Note
+            let dict = ["main_title":"Nueva nota from KVC","createdAtTI":Date().timeIntervalSince1970] as [String : Any]
             
-//            note.title = "Nueva nota"
-//            note.createdAtTI = Date().timeIntervalSince1970
+            note.setValuesForKeys(dict)
             
             // Se guarda en Core Data
             try! privateMOC.save()
-            
-            // Para refrescar la vista
-//            DispatchQueue.main.async {
-                // obtenemos la nota del DataManager, pero hay que guardarlo antes
-//                let noteInMainThread = DataManager.sharedManager.persistenceContainer.viewContext.object(with: note.objectID) as! Note
-//                self.noteList.append(noteInMainThread)
-//                self.tableView.reloadData()
-//            }
         }
         
         // Síncrono
         // privateMOC.performAndWait { }
     }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.reloadData()
-    }
 }
+

@@ -13,14 +13,15 @@ import CoreData
 class DataManager: NSObject {
     
     static let sharedManager = DataManager()
-
-    lazy var persistenceContainer: NSPersistentContainer = {
+    
+    lazy var persistentContainer: NSPersistentContainer = {
         
         let container = NSPersistentContainer(name: "Everpobre")
-        container.loadPersistentStores(completionHandler: {(storeDescription, error) in
-            if let err = error as NSError? {
-                // Error to handle
-                print (err)
+        container.loadPersistentStores(completionHandler: { (storeDescription,error) in
+            
+            if let err = error {
+                // Error to handle.
+                print(err)
             }
             container.viewContext.automaticallyMergesChangesFromParent = true
         })

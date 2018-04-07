@@ -15,16 +15,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         
         window = UIWindow()
         
-        // let noteVC = NoteViewController()           // Usando la vista definida en el .xib
-        // let noteVC = NoteViewByCodeController()  // Con generación de la vista por código
-        let noteVC = NotesTableViewController()     // Con vista de tabla
-        let navController = UINavigationController(rootViewController: noteVC)
+        // let noteVC = NoteViewController()            // Usando la vista definida en el .xib
+        let noteVC = NoteViewByCodeController()         // Con generación de la vista por código
+        let notesTVC = NotesTableViewController()       // Con vista de tabla
         
-        window?.rootViewController = navController
+        notesTVC.delegate = noteVC;
+        
+        // Creamos el view controler para la pantalla partida
+        let splitViewController = UISplitViewController()
+        splitViewController.viewControllers = [
+            notesTVC.wrappedInNavigation(),
+            noteVC.wrappedInNavigation()
+        ]
+        
+        window?.rootViewController = splitViewController
         window?.makeKeyAndVisible()
         return true
     }
