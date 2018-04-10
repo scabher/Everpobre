@@ -11,8 +11,8 @@ import UIKit
 class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate {
     
     // Mark: - Properties
-    let dateLabel = UILabel()
-    let expirationDate = UILabel()
+    let creationDateLabel = UILabel()
+    let expirationDateLabel = UILabel()
     let titleTextField = UITextField()
     let noteTextView = UITextView()
     let imageView = UIImageView()
@@ -31,12 +31,12 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         backView.backgroundColor = .white
         
         // Configure Label
-        dateLabel.text = "15/02/2018"
-        backView.addSubview(dateLabel)
+        creationDateLabel.text = "15/02/2018"
+        backView.addSubview(creationDateLabel)
         
         // Configure Label
-        expirationDate.text = "24/12/2018"
-        backView.addSubview(expirationDate)
+        expirationDateLabel.text = "24/12/2018"
+        backView.addSubview(expirationDateLabel)
         
         // Configure titleTextField
         titleTextField.placeholder = "Note title"
@@ -53,13 +53,13 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         
         // MARK: Autolayout
         // No traslada las autoresize rules to constraints
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        creationDateLabel.translatesAutoresizingMaskIntoConstraints = false
         noteTextView.translatesAutoresizingMaskIntoConstraints = false
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
-        expirationDate.translatesAutoresizingMaskIntoConstraints = false
+        expirationDateLabel.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         
-        let viewDict = ["dateLabel": dateLabel, "noteTextView": noteTextView, "titleTextField": titleTextField, "expirationDate": expirationDate]
+        let viewDict = ["dateLabel": creationDateLabel, "noteTextView": noteTextView, "titleTextField": titleTextField, "expirationDate": expirationDateLabel]
         
         // Horizontal
         var constraints = NSLayoutConstraint.constraints(
@@ -86,7 +86,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         
         // Option B
         constraints.append(NSLayoutConstraint(
-            item: dateLabel,
+            item: creationDateLabel,
             attribute: .top,
             relatedBy: .equal,
             toItem: backView.safeAreaLayoutGuide, // Toma como referencia el safe area (importante para iPhone X)
@@ -95,10 +95,10 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             constant: 10))
         
         constraints.append(NSLayoutConstraint(
-            item: expirationDate,
+            item: expirationDateLabel,
             attribute: .lastBaseline,
             relatedBy: .equal,
-            toItem: dateLabel,
+            toItem: creationDateLabel,
             attribute: .lastBaseline,
             multiplier: 1,
             constant: 0))
@@ -107,7 +107,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             item: titleTextField,
             attribute: .lastBaseline,
             relatedBy: .equal,
-            toItem: dateLabel,
+            toItem: creationDateLabel,
             attribute: .lastBaseline,
             multiplier: 1,
             constant: 0))
@@ -196,7 +196,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         self.setToolbarItems([photoBarButton, flexibleSpace, mapBarButton], animated: false)
         
         /*
-        // Lo que se puede modificar de una vista en uns animación
+        // Lo que se puede modificar de una vista en una animación
          
         imageView.frame = CGRect(x: 15, y: 50, width: 100, height: 150)
         imageView.bounds = CGRect(x: 0, y: 0, width: 100, height: 150)
@@ -328,16 +328,24 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         present(actionSheetAlert, animated: true, completion: nil)
     }
     
-    @objc func addLocation()
-    {
+    @objc func addLocation() {
         
     }
     
     // Mark: - Sync
     func syncModelWithView() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US")
+        dateFormatter.setLocalizedDateFormatFromTemplate("dd-mm-yyyy")
+        
+        let creationDate = Date(timeIntervalSince1970: (note?.createdAtTI)!)
+        let expirationDate = Date(timeIntervalSince1970: (note?.expirationAtTI)!)
+        
         // Model -> View
         titleTextField.text = note?.title
         noteTextView.text = note?.content
+        creationDateLabel.text = dateFormatter.string(from: creationDate)
+        expirationDateLabel.text =  dateFormatter.string(from: expirationDate)
     }
 }
 

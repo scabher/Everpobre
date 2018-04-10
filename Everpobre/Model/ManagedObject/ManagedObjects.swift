@@ -24,7 +24,7 @@ extension Note {
         }
     }
     
-    // Obligatorio implementar ambos métidos
+    // Obligatorio implementar ambos métodos
     public override func value(forUndefinedKey key: String) -> Any? {
         if key == "main_title" {
             return "main_title"
