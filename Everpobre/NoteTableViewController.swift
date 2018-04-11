@@ -9,6 +9,9 @@
 import UIKit
 import CoreData
 
+let DEFAULT_NOTEBOOK_NAME = "Mi notebook"
+
+
 // Delegado para comunicar este VC con el VC del detalle de la nota
 protocol NotesTableViewControllerDelegate: class {
     // should, will, did
@@ -29,7 +32,9 @@ class NotesTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewNote))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewNoteToDefault))
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(addNewNote))
         
         // Si no existe el notebook 'Default' lo crea
         createDefaultNotebook()
@@ -121,7 +126,16 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         tableView.reloadData()
     }
     
+    
     @objc func addNewNote()  {
+        
+        let notebook = Notebook()
+        
+        addNewNoteToDefault(notebookName: notebook.name)
+    }
+    
+    
+    @objc func addNewNoteToDefault(notebookName: String?)  {
         let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         
         // Asíncrono
@@ -129,8 +143,8 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
             // KVC
             let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: privateMOC) as! Notebook
             let dictNoteBook = [
-                "name": "Mi notebook"
-            ] as [String : Any]
+                "name": notebookName != nil ? notebookName! : DEFAULT_NOTEBOOK_NAME
+                ] as [String : Any]
             notebook.setValuesForKeys(dictNoteBook)
             
             let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: privateMOC) as! Note
@@ -138,9 +152,9 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
                 "main_title": "Nueva nota from KVC",
                 "createdAtTI": Date().timeIntervalSince1970,
                 "notebook": notebook
-            ] as [String : Any]
+                ] as [String : Any]
             note.setValuesForKeys(dict)
-
+            
             // Se guarda en Core Data
             try! privateMOC.save()
         }
@@ -149,13 +163,13 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         // privateMOC.performAndWait { }
     }
     
-
+    
     func createDefaultNotebook() {
         let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
         let defaultNotebook: [Notebook]
         
-        fetchRequest.predicate = NSPredicate(format: "name = %@", "Mi notebook")
-
+        fetchRequest.predicate = NSPredicate(format: "name = %@", DEFAULT_NOTEBOOK_NAME)
+        
         try! defaultNotebook = viewMOC.fetch(fetchRequest)
         
         // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
@@ -165,7 +179,7 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
                 // KVC
                 let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: self.viewMOC) as! Notebook
                 let dictNoteBook = [
-                    "name": "Default"
+                    "name": DEFAULT_NOTEBOOK_NAME
                     ] as [String : Any]
                 notebook.setValuesForKeys(dictNoteBook)
                 
