@@ -224,8 +224,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         
         // MARK: About Note
         if note != nil {
-            titleTextField.text = note?.title
-            noteTextView.text = note?.content
+            syncModelWithView()
         }
     }
     
@@ -339,7 +338,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         dateFormatter.setLocalizedDateFormatFromTemplate("dd-mm-yyyy")
         
         let creationDate = Date(timeIntervalSince1970: (note?.createdAtTI)!)
-        let expirationDate = Date(timeIntervalSince1970: (note?.expirationAtTI)!)
+        let expirationDate = Date(timeIntervalSince1970: (note?.expiredAtTI)!)
         
         // Model -> View
         titleTextField.text = note?.title
