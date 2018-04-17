@@ -35,7 +35,7 @@ class NotesTableViewController: UITableViewController {
         
         // TODO: Paso de parámetros a un selector
         let addButtonLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selectNotebookForNewNote))
-        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteInDefault))
+        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteToDefault))
         let addNoteButton = UIButton(type: UIButtonType.custom)
         addNoteButton.setTitle("Add Note", for: UIControlState.normal)
         addNoteButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
@@ -44,11 +44,20 @@ class NotesTableViewController: UITableViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: addNoteButton)
         
+        
+        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
+        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
+        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
+        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
+        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
+        
         //(barButtonSystemItem: .add, target: self, action: #selector(addNewNoteInDefault))
         // navigationItem.rightBarButtonItem?.customView = addNoteButton
         
         // Si no existe el notebook 'Default' lo crea
-        createDefaultNotebook()
+        addNewNotebook(name: DEFAULT_NOTEBOOK_NAME, canExist: true)
         
         // Forma antigua
         // 1.- Creamos el objeto
@@ -163,7 +172,7 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         present(actionSheetAlert, animated: true, completion: nil)
     }
     
-    @objc func addNewNoteInDefault() {
+    @objc func addNewNoteToDefault() {
         addNewNote(name: DEFAULT_NOTEBOOK_NAME)
     }
     
@@ -212,28 +221,82 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         // privateMOC.performAndWait { }
     }
     
+    @objc func showNotebooksActions() {
+        // Modal para seleccionar acciones sobre notebook
+        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Notebook actions", comment: "Choose notebook action"), message: nil, preferredStyle: .actionSheet)
+        
+        
+        let newNotebookAction = UIAlertAction(title: NSLocalizedString("New Notebook", comment: "Create a new notebook"), style: .default) { (alertAction) in
+            self.addNewNotebook(name: "TempName", canExist: false)
+        }
+        actionSheetAlert.addAction(newNotebookAction)
+
+        let removeNotebookAction = UIAlertAction(title: NSLocalizedString("Delete Notebook", comment: "Delete a notebook"), style: .default) { (alertAction) in
+            self.removeNotebook(name: "TempName")
+        }
+        actionSheetAlert.addAction(removeNotebookAction)
+        
+        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .destructive, handler: nil)
+        actionSheetAlert.addAction(cancel)
+        
+        present(actionSheetAlert, animated: true, completion: nil)
+    }
     
-    func createDefaultNotebook() {
+    
+    func addNewNotebook(name: String, canExist: Bool) {
+        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
-        let defaultNotebook: [Notebook]
+        let notebooks: [Notebook]
         
-        fetchRequest.predicate = NSPredicate(format: "name = %@", DEFAULT_NOTEBOOK_NAME)
+        fetchRequest.predicate = NSPredicate(format: "name = %@", name)
         
-        try! defaultNotebook = viewMOC.fetch(fetchRequest)
+        try! notebooks = privateMOC.fetch(fetchRequest)
         
         // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
-        if defaultNotebook.count == 0 {
+        if notebooks.count == 0 {
             // Asíncrono
-            viewMOC.performAndWait {
+            privateMOC.perform {
                 // KVC
-                let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: self.viewMOC) as! Notebook
+                let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: privateMOC) as! Notebook
                 let dictNoteBook = [
-                    "name": DEFAULT_NOTEBOOK_NAME
+                    "name": name
                     ] as [String : Any]
                 notebook.setValuesForKeys(dictNoteBook)
                 
                 // Se guarda en Core Data
-                try! self.viewMOC.save()
+                try! privateMOC.save()
+            }
+        } else if canExist {
+            // TODO: Mostar notificación al usuario de que ya existe un notebook con ese nombre
+        }
+    }
+    
+    func removeNotebook(name: String) {
+        let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
+        let notebooks: [Notebook]
+        
+        fetchRequest.predicate = NSPredicate(format: "name = %@", name)
+        
+        try! notebooks = viewMOC.fetch(fetchRequest)
+        
+        // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
+        if notebooks.count > 0 {
+            if notebooks.first!.notes != nil && notebooks.first!.notes!.count > 0 {
+                // TODO: Seleccionar qué hacer con las notas del notebook
+            }
+            
+            
+            // Finalmente se elimina el notebook - Asíncrono
+            viewMOC.perform {
+                // KVC
+//                let notebook = NSEntityDescription. insertNewObject(forEntityName: "Notebook", into: self.viewMOC) as! Notebook
+//                let dictNoteBook = [
+//                    "name": name
+//                    ] as [String : Any]
+//                notebook.setValuesForKeys(dictNoteBook)
+//
+//                // Se guarda en Core Data
+//                try! self.viewMOC.save()
             }
         }
     }
