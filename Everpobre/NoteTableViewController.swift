@@ -232,7 +232,7 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         actionSheetAlert.addAction(newNotebookAction)
 
         let removeNotebookAction = UIAlertAction(title: NSLocalizedString("Delete Notebook", comment: "Delete a notebook"), style: .default) { (alertAction) in
-            self.removeNotebook(name: "TempName")
+            self.removeNotebook(name: "Mi notebook")
         }
         actionSheetAlert.addAction(removeNotebookAction)
         
@@ -264,40 +264,50 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
                 notebook.setValuesForKeys(dictNoteBook)
                 
                 // Se guarda en Core Data
-                try! privateMOC.save()
+                do {
+                    try privateMOC.save()
+                }
+                catch {
+                    NSLog("Error adding new notebook: \(error)")
+                }
             }
-        } else if canExist {
-            // TODO: Mostar notificación al usuario de que ya existe un notebook con ese nombre
+        } else if !canExist {
+            showAlert(title: "Notebook not created", message: "This notebook name already exists", buttonText: "Ok")
         }
     }
     
     func removeNotebook(name: String) {
+        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
         let notebooks: [Notebook]
         
         fetchRequest.predicate = NSPredicate(format: "name = %@", name)
         
-        try! notebooks = viewMOC.fetch(fetchRequest)
+        try! notebooks = privateMOC.fetch(fetchRequest)
         
-        // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
         if notebooks.count > 0 {
             if notebooks.first!.notes != nil && notebooks.first!.notes!.count > 0 {
                 // TODO: Seleccionar qué hacer con las notas del notebook
             }
             
-            
             // Finalmente se elimina el notebook - Asíncrono
-            viewMOC.perform {
-                // KVC
-//                let notebook = NSEntityDescription. insertNewObject(forEntityName: "Notebook", into: self.viewMOC) as! Notebook
-//                let dictNoteBook = [
-//                    "name": name
-//                    ] as [String : Any]
-//                notebook.setValuesForKeys(dictNoteBook)
-//
-//                // Se guarda en Core Data
-//                try! self.viewMOC.save()
+            privateMOC.perform {
+                // Se elimina en Core Data
+                privateMOC.delete(notebooks.first!)©
+                self.showAlert(title: "Notebook removed", message: "The notebook has been removed successfuly", buttonText: "Ok")
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
+        }
+    }
+    
+    func showAlert(title: String, message: String, buttonText: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let cancel = UIAlertAction(title: buttonText, style: .default, handler: nil)
+            alert.addAction(cancel)
+            self.present(alert, animated: true, completion: nil)
         }
     }
 }
