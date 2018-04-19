@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F2453BE2087C76C00C9FB26 /* NotebookTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */; };
+		3F2453BF2087C76C00C9FB26 /* NotebookTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */; };
 		3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */; };
-		3F57A95A205871D300000633 /* ManagedObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F57A959205871D300000633 /* ManagedObjects.swift */; };
+		3F57A95A205871D300000633 /* Note+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F57A959205871D300000633 /* Note+CRUD.swift */; };
 		3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DED205718BF005407AE /* Everpobre.xcdatamodeld */; };
 		3F786DF1205720A3005407AE /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DF0205720A3005407AE /* DataManager.swift */; };
 		3F786DF320572F95005407AE /* NoteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DF220572F95005407AE /* NoteTableViewController.swift */; };
@@ -18,6 +20,7 @@
 		3F7E041C2051CF9400FB37A8 /* NoteViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F7E041A2051CF9400FB37A8 /* NoteViewController.xib */; };
 		3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */; };
 		3FC0AE9F2055EFD4002A6F34 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */; };
+		3FE471A22087FEF000D19985 /* Notebook+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,8 +34,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookTableViewController.swift; sourceTree = "<group>"; };
+		3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotebookTableViewController.xib; sourceTree = "<group>"; };
 		3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Additions.swift"; sourceTree = "<group>"; };
-		3F57A959205871D300000633 /* ManagedObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjects.swift; sourceTree = "<group>"; };
+		3F57A959205871D300000633 /* Note+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CRUD.swift"; sourceTree = "<group>"; };
 		3F786DEE205718BF005407AE /* Everpobre.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Everpobre.xcdatamodel; sourceTree = "<group>"; };
 		3F786DF0205720A3005407AE /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		3F786DF220572F95005407AE /* NoteTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTableViewController.swift; sourceTree = "<group>"; };
@@ -45,6 +50,7 @@
 		3F7E041A2051CF9400FB37A8 /* NoteViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NoteViewController.xib; sourceTree = "<group>"; };
 		3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteViewByCodeController.swift; sourceTree = "<group>"; };
 		3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notebook+CRUD.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,7 +82,8 @@
 		3F57A958205871AD00000633 /* ManagedObject */ = {
 			isa = PBXGroup;
 			children = (
-				3F57A959205871D300000633 /* ManagedObjects.swift */,
+				3F57A959205871D300000633 /* Note+CRUD.swift */,
+				3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */,
 			);
 			path = ManagedObject;
 			sourceTree = "<group>";
@@ -111,18 +118,36 @@
 		3F7E03F82051CEF300FB37A8 /* Everpobre */ = {
 			isa = PBXGroup;
 			children = (
+				3FE471A4208809E600D19985 /* Controller */,
+				3FE471A3208809D000D19985 /* View */,
 				3F4F899F207833F400DA0B4C /* UIKitExtensions */,
 				3F786DEC20571790005407AE /* Model */,
 				3F7E03F92051CEF300FB37A8 /* AppDelegate.swift */,
 				3F7E04002051CEF300FB37A8 /* Assets.xcassets */,
 				3F7E04052051CEF300FB37A8 /* Info.plist */,
-				3F7E04192051CF9400FB37A8 /* NoteViewController.swift */,
-				3F7E041A2051CF9400FB37A8 /* NoteViewController.xib */,
-				3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */,
-				3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */,
-				3F786DF220572F95005407AE /* NoteTableViewController.swift */,
 			);
 			path = Everpobre;
+			sourceTree = "<group>";
+		};
+		3FE471A3208809D000D19985 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				3F7E041A2051CF9400FB37A8 /* NoteViewController.xib */,
+				3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */,
+				3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		3FE471A4208809E600D19985 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				3F7E04192051CF9400FB37A8 /* NoteViewController.swift */,
+				3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */,
+				3F786DF220572F95005407AE /* NoteTableViewController.swift */,
+				3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */,
+			);
+			path = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -208,6 +233,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F2453BF2087C76C00C9FB26 /* NotebookTableViewController.xib in Resources */,
 				3FC0AE9F2055EFD4002A6F34 /* Launch Screen.storyboard in Resources */,
 				3F7E041C2051CF9400FB37A8 /* NoteViewController.xib in Resources */,
 				3F7E04012051CEF300FB37A8 /* Assets.xcassets in Resources */,
@@ -228,9 +254,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FE471A22087FEF000D19985 /* Notebook+CRUD.swift in Sources */,
 				3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */,
-				3F57A95A205871D300000633 /* ManagedObjects.swift in Sources */,
+				3F57A95A205871D300000633 /* Note+CRUD.swift in Sources */,
 				3F786DF1205720A3005407AE /* DataManager.swift in Sources */,
+				3F2453BE2087C76C00C9FB26 /* NotebookTableViewController.swift in Sources */,
 				3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */,
 				3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */,
 				3F786DF320572F95005407AE /* NoteTableViewController.swift in Sources */,

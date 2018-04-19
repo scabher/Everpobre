@@ -32,4 +32,10 @@ extension Note {
         
         return super.value(forKey: key)
     }
+    
+    static func add(name: String, notebookName: String) {
+    
+    }
 }
+
+

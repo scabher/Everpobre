@@ -98,12 +98,12 @@ class NotesTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    @objc func updateInfo() {
-        // El notification center puede despachar en cualquier hilo
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
+//    @objc func updateInfo() {
+//        // El notification center puede despachar en cualquier hilo
+//        DispatchQueue.main.async {
+//            self.tableView.reloadData()
+//        }
+//    }
     
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -194,15 +194,10 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
             
             // Si no existe el notebook asociado se aborta la acción
             if notebooks.count == 0 {
-                // TODO: Mostrar mensaje a usuario
+                // Mostrar mensaje a usuario
+                self.showAlert(title: "Note not created", message: "There's no notebook with the name \(notebookName)", buttonText: "Ok")
                 return
             }
-            
-            let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: privateMOC) as! Notebook
-            let dictNoteBook = [
-                "name": notebookName
-                ] as [String : Any]
-            notebook.setValuesForKeys(dictNoteBook)
             
             let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: privateMOC) as! Note
             let dict = [
@@ -222,86 +217,52 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     @objc func showNotebooksActions() {
-        // Modal para seleccionar acciones sobre notebook
-        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Notebook actions", comment: "Choose notebook action"), message: nil, preferredStyle: .actionSheet)
-        
-        
-        let newNotebookAction = UIAlertAction(title: NSLocalizedString("New Notebook", comment: "Create a new notebook"), style: .default) { (alertAction) in
-            self.addNewNotebook(name: "TempName", canExist: false)
+        let notebooksVC = NotebookTableViewController()
+        notebooksVC.dismiss(animated: true) {
+            try! self.fetchedResultController.performFetch()
+            self.tableView.reloadData()
         }
-        actionSheetAlert.addAction(newNotebookAction)
-
-        let removeNotebookAction = UIAlertAction(title: NSLocalizedString("Delete Notebook", comment: "Delete a notebook"), style: .default) { (alertAction) in
-            self.removeNotebook(name: "Mi notebook")
-        }
-        actionSheetAlert.addAction(removeNotebookAction)
         
-        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .destructive, handler: nil)
-        actionSheetAlert.addAction(cancel)
+        let navNotebooksVC = notebooksVC.wrappedInNavigation()
+        navNotebooksVC.modalPresentationStyle = .overCurrentContext
         
-        present(actionSheetAlert, animated: true, completion: nil)
+        self.present(navNotebooksVC, animated: true, completion: nil)
+        
+//        // Modal para seleccionar acciones sobre notebook
+//        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Notebook actions", comment: "Choose notebook action"), message: nil, preferredStyle: .actionSheet)
+//
+//
+//        let newNotebookAction = UIAlertAction(title: NSLocalizedString("New Notebook", comment: "Create a new notebook"), style: .default) { (alertAction) in
+//            self.addNewNotebook(name: "TempName", canExist: false)
+//        }
+//        actionSheetAlert.addAction(newNotebookAction)
+//
+//        let removeNotebookAction = UIAlertAction(title: NSLocalizedString("Delete Notebook", comment: "Delete a notebook"), style: .default) { (alertAction) in
+//            self.removeNotebook(name: "Mi notebook")
+//        }
+//        actionSheetAlert.addAction(removeNotebookAction)
+//
+//        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .destructive, handler: nil)
+//        actionSheetAlert.addAction(cancel)
+//
+//        present(actionSheetAlert, animated: true, completion: nil)
     }
     
     
     func addNewNotebook(name: String, canExist: Bool) {
         let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
-        let notebooks: [Notebook]
-        
-        fetchRequest.predicate = NSPredicate(format: "name = %@", name)
-        
-        try! notebooks = privateMOC.fetch(fetchRequest)
-        
+        let notebook = Notebook.named(name: name, in: privateMOC)
+
         // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
-        if notebooks.count == 0 {
-            // Asíncrono
-            privateMOC.perform {
-                // KVC
-                let notebook = NSEntityDescription.insertNewObject(forEntityName: "Notebook", into: privateMOC) as! Notebook
-                let dictNoteBook = [
-                    "name": name
-                    ] as [String : Any]
-                notebook.setValuesForKeys(dictNoteBook)
-                
-                // Se guarda en Core Data
-                do {
-                    try privateMOC.save()
-                }
-                catch {
-                    NSLog("Error adding new notebook: \(error)")
-                }
-            }
+        if notebook == nil {
+            Notebook.add(name: name, in: privateMOC)
+            showAlert(title: "Notebook created", message: "The notebook was created successfuly", buttonText: "Ok")
         } else if !canExist {
             showAlert(title: "Notebook not created", message: "This notebook name already exists", buttonText: "Ok")
         }
     }
     
-    func removeNotebook(name: String) {
-        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
-        let notebooks: [Notebook]
-        
-        fetchRequest.predicate = NSPredicate(format: "name = %@", name)
-        
-        try! notebooks = privateMOC.fetch(fetchRequest)
-        
-        if notebooks.count > 0 {
-            if notebooks.first!.notes != nil && notebooks.first!.notes!.count > 0 {
-                // TODO: Seleccionar qué hacer con las notas del notebook
-            }
-            
-            // Finalmente se elimina el notebook - Asíncrono
-            privateMOC.perform {
-                // Se elimina en Core Data
-                privateMOC.delete(notebooks.first!)©
-                self.showAlert(title: "Notebook removed", message: "The notebook has been removed successfuly", buttonText: "Ok")
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-        }
-    }
-    
+   
     func showAlert(title: String, message: String, buttonText: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
