@@ -9,7 +9,8 @@
 import UIKit
 import CoreData
 
-let DEFAULT_NOTEBOOK_NAME = "Mi notebook"
+let DEFAULT_NOTE_NAME = "My note"
+let DEFAULT_NOTEBOOK_NAME = "My notebook"
 let EXPIRATION_DELTA: Double = 60 * 60 * 24 * 30
 
 
@@ -30,28 +31,41 @@ class NotesTableViewController: UITableViewController {
     // Fetch Request
     let viewMOC = DataManager.sharedManager.persistentContainer.viewContext
     
+    init() {
+        super.init(nibName: nil, bundle: Bundle(for: type(of: self)))
+        
+        tableView.estimatedRowHeight = 44.0
+        tableView.rowHeight = UITableViewAutomaticDimension
+        
+        title = "Notes"
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // TODO: Paso de parámetros a un selector
-        let addButtonLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selectNotebookForNewNote))
-        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteToDefault))
-        let addNoteButton = UIButton(type: UIButtonType.custom)
-        addNoteButton.setTitle("Add Note", for: UIControlState.normal)
-        addNoteButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
-        addNoteButton.addGestureRecognizer(addButtonTapGesture)
-        addNoteButton.addGestureRecognizer(addButtonLongPressGesture)
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: addNoteButton)
-        
-        
-        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
-        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
-        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
-        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
-        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
+//        let addButtonLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selectNotebookForNewNote))
+//        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteToDefault))
+//        let addNoteButton = UIButton(type: UIButtonType.custom)
+//        addNoteButton.setTitle("Add Note", for: UIControlState.normal)
+//        addNoteButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
+//        addNoteButton.addGestureRecognizer(addButtonTapGesture)
+//        addNoteButton.addGestureRecognizer(addButtonLongPressGesture)
+//        
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: addNoteButton)
+//        
+//        
+//        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
+//        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
+//        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
+//        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
+//        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
+//        
+//        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
         
         //(barButtonSystemItem: .add, target: self, action: #selector(addNewNoteInDefault))
         // navigationItem.rightBarButtonItem?.customView = addNoteButton
@@ -94,16 +108,21 @@ class NotesTableViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //NotificationCenter.default.addObserver(tableView, selector: #selector(updateInfo), name: NSNotification(NSManagedObjectContextDidSave), object: nil)
+        
+        navigationController?.isToolbarHidden = false
+        let closeButton = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(showNotebooksActions))
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        let addButtonLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selectNotebookForNewNote))
+        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteToDefault))
+        let addNoteButton = UIButton(type: UIButtonType.contactAdd)
+        addNoteButton.addGestureRecognizer(addButtonTapGesture)
+        addNoteButton.addGestureRecognizer(addButtonLongPressGesture)
+
+        self.setToolbarItems([closeButton, flexibleSpace, UIBarButtonItem(customView: addNoteButton)], animated: false)
+        
         tableView.reloadData()
     }
-    
-//    @objc func updateInfo() {
-//        // El notification center puede despachar en cualquier hilo
-//        DispatchQueue.main.async {
-//            self.tableView.reloadData()
-//        }
-//    }
     
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -150,20 +169,16 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
     @objc func selectNotebookForNewNote()  {
         // Modal para seleccionar el notebook
         let actionSheetAlert = UIAlertController(title: NSLocalizedString("Choose Notebook", comment: "Choose notebook to add a new note"), message: nil, preferredStyle: .actionSheet)
+        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+        let notebooks = Notebook.notebooks(in: privateMOC)
         
-        if (fetchedResultController.sections != nil && fetchedResultController.sections!.count > 0) {
-            for notebook in fetchedResultController.sections! {
+        if (notebooks.fetchedObjects != nil && notebooks.fetchedObjects!.count > 0) {
+            for notebook in notebooks.fetchedObjects! {
                 let notebookAction = UIAlertAction(title: notebook.name, style: .default) { (alertAction) in
-                    self.addNewNote(name: notebook.name)
+                    self.addNewNote(notebookName: alertAction.title!)
                 }
                 actionSheetAlert.addAction(notebookAction)
             }
-        }
-        else {
-            let notebookAction = UIAlertAction(title: DEFAULT_NOTEBOOK_NAME, style: .default) { (alertAction) in
-                self.addNewNote(name: DEFAULT_NOTEBOOK_NAME)
-            }
-            actionSheetAlert.addAction(notebookAction)
         }
         
         let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .destructive, handler: nil)
@@ -173,47 +188,13 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     @objc func addNewNoteToDefault() {
-        addNewNote(name: DEFAULT_NOTEBOOK_NAME)
+        addNewNote(notebookName: DEFAULT_NOTEBOOK_NAME)
     }
     
-    @objc func addNewNote(name: String?)  {
+    @objc func addNewNote(notebookName: String)  {
         let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         
-        let notebookName = name ?? DEFAULT_NOTEBOOK_NAME
-        
-        // Asíncrono
-        privateMOC.perform {
-            // KVC
-            // Se busca el notebook según el nombre
-            let fetchRequest = NSFetchRequest<Notebook>(entityName: "Notebook")
-            let notebooks: [Notebook]
-            
-            fetchRequest.predicate = NSPredicate(format: "name = %@", notebookName)
-            
-            try! notebooks = privateMOC.fetch(fetchRequest)
-            
-            // Si no existe el notebook asociado se aborta la acción
-            if notebooks.count == 0 {
-                // Mostrar mensaje a usuario
-                self.showAlert(title: "Note not created", message: "There's no notebook with the name \(notebookName)", buttonText: "Ok")
-                return
-            }
-            
-            let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: privateMOC) as! Note
-            let dict = [
-                "main_title": "Nueva nota from KVC",
-                "createdAtTI": Date().timeIntervalSince1970,
-                "expiredAtTI": Date().timeIntervalSince1970 + EXPIRATION_DELTA,
-                "notebook": notebooks.first!
-                ] as [String : Any]
-            note.setValuesForKeys(dict)
-            
-            // Se guarda en Core Data
-            try! privateMOC.save()
-        }
-        
-        // Síncrono
-        // privateMOC.performAndWait { }
+        Note.add(name: DEFAULT_NOTE_NAME, in: notebookName, using: privateMOC)
     }
     
     @objc func showNotebooksActions() {

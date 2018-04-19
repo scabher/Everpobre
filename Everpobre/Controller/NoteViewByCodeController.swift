@@ -28,6 +28,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     
     override func loadView() {
         let backView = UIView()
+        self.title = "Note Details"
         backView.backgroundColor = .white
         
         // Configure Label

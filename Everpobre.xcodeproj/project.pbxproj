@@ -21,6 +21,8 @@
 		3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */; };
 		3FC0AE9F2055EFD4002A6F34 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */; };
 		3FE471A22087FEF000D19985 /* Notebook+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */; };
+		49A09D11208911C0002D2E7A /* NotebookTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */; };
+		49A09D12208911C0002D2E7A /* NotebookTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49A09D10208911C0002D2E7A /* NotebookTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +53,8 @@
 		3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteViewByCodeController.swift; sourceTree = "<group>"; };
 		3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notebook+CRUD.swift"; sourceTree = "<group>"; };
+		49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookTableViewCell.swift; sourceTree = "<group>"; };
+		49A09D10208911C0002D2E7A /* NotebookTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotebookTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +139,7 @@
 				3F7E041A2051CF9400FB37A8 /* NoteViewController.xib */,
 				3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */,
 				3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */,
+				49A09D10208911C0002D2E7A /* NotebookTableViewCell.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -146,6 +151,7 @@
 				3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */,
 				3F786DF220572F95005407AE /* NoteTableViewController.swift */,
 				3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */,
+				49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -236,6 +242,7 @@
 				3F2453BF2087C76C00C9FB26 /* NotebookTableViewController.xib in Resources */,
 				3FC0AE9F2055EFD4002A6F34 /* Launch Screen.storyboard in Resources */,
 				3F7E041C2051CF9400FB37A8 /* NoteViewController.xib in Resources */,
+				49A09D12208911C0002D2E7A /* NotebookTableViewCell.xib in Resources */,
 				3F7E04012051CEF300FB37A8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -258,6 +265,7 @@
 				3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */,
 				3F57A95A205871D300000633 /* Note+CRUD.swift in Sources */,
 				3F786DF1205720A3005407AE /* DataManager.swift in Sources */,
+				49A09D11208911C0002D2E7A /* NotebookTableViewCell.swift in Sources */,
 				3F2453BE2087C76C00C9FB26 /* NotebookTableViewController.swift in Sources */,
 				3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */,
 				3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */,

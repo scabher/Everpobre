@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 
 extension Note {
@@ -33,8 +34,34 @@ extension Note {
         return super.value(forKey: key)
     }
     
-    static func add(name: String, notebookName: String) {
-    
+    static func add(name: String, in notebookName: String, using moc: NSManagedObjectContext) {
+        // Asíncrono
+        moc.perform {
+            // KVC
+            // Se busca el notebook según el nombre
+            let nb = Notebook.named(name: notebookName, in: moc)
+            
+            guard let notebook = nb else {
+                NSLog("Notebook name not found. Note not created.")
+                return
+            }
+            
+            let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: moc) as! Note
+            let dict = [
+                "main_title": name,
+                "createdAtTI": Date().timeIntervalSince1970,
+                "expiredAtTI": Date().timeIntervalSince1970 + EXPIRATION_DELTA,
+                "notebook": notebook
+                ] as [String : Any]
+            note.setValuesForKeys(dict)
+            
+            // Se guarda en Core Data
+            do {
+                try moc.save()
+            } catch {
+                NSLog("Error creating note: \(error)")
+            }
+        }
     }
 }
 

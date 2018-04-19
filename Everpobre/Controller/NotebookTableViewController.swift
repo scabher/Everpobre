@@ -39,11 +39,12 @@ class NotebookTableViewController: UITableViewController {
         super.viewWillAppear(animated)
         
         navigationController?.isToolbarHidden = false
-        let button = UIButton(type: .custom)
-        button.setTitle("Add note", for: .normal)
-        button.setTitleColor(view.tintColor, for: .normal)
-        let addNoteButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(close))
-        self.setToolbarItems([addNoteButton], animated: false)
+        let closeButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(close))
+        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let addNotebookButton = UIButton(type: UIButtonType.contactAdd)
+        addNotebookButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(addNotebook)))
+
+        self.setToolbarItems([closeButton, flexibleSpace, UIBarButtonItem(customView:  addNotebookButton)], animated: false)
         
         tableView.reloadData()
     }
@@ -59,15 +60,13 @@ class NotebookTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier")
-        if cell == nil {
-            cell = UITableViewCell(style: .default, reuseIdentifier: "reuseIdentifier")
-        }
-        
         let notebook = fetchedResultController.object(at: indexPath)
-        cell?.textLabel?.text = notebook.name
         
-        return cell!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier") as? NotebookTableViewCell ?? NotebookTableViewCell()
+        
+        cell.nameTextField.text = notebook.name
+        
+        return cell
     }
 
     // Override to support conditional editing of the table view.
@@ -104,6 +103,11 @@ extension NotebookTableViewController {
                 try self.fetchedResultController.performFetch()
             } catch { }
         }
+    }
+    
+    @objc func addNotebook() {
+        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+        Notebook.add(name: "New Notebook", in: privateMOC)
     }
     
     func removeNotebook(notebook: Notebook) {
