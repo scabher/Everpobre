@@ -17,10 +17,10 @@ let EXPIRATION_DELTA: Double = 60 * 60 * 24 * 30
 // Delegado para comunicar este VC con el VC del detalle de la nota
 protocol NotesTableViewControllerDelegate: class {
     // should, will, did
-    func notesTableViewController(_ vc: NotesTableViewController, didSelectNote: Note)
+    func notesTableViewController(_ vc: NoteTableViewController, didSelectNote: Note)
 }
 
-class NotesTableViewController: UITableViewController {
+class NoteTableViewController: UITableViewController {
     
     // var noteList:[Note] = []  // Se sustituye por fetchedResultController
     // var observer: NSObjectProtocol?
@@ -71,7 +71,7 @@ class NotesTableViewController: UITableViewController {
         // navigationItem.rightBarButtonItem?.customView = addNoteButton
         
         // Si no existe el notebook 'Default' lo crea
-        addNewNotebook(name: DEFAULT_NOTEBOOK_NAME, canExist: true)
+        createDefaultNotebook()
         
         // Forma antigua
         // 1.- Creamos el objeto
@@ -123,6 +123,7 @@ class NotesTableViewController: UITableViewController {
         
         tableView.reloadData()
     }
+
     
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -159,7 +160,7 @@ class NotesTableViewController: UITableViewController {
     }
 }
 
-extension NotesTableViewController: NSFetchedResultsControllerDelegate {
+extension NoteTableViewController: NSFetchedResultsControllerDelegate {
     // Se ejecutará cuando hay cambios en el Core Data (mediante un save)
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.reloadData()
@@ -175,7 +176,7 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
         if (notebooks.fetchedObjects != nil && notebooks.fetchedObjects!.count > 0) {
             for notebook in notebooks.fetchedObjects! {
                 let notebookAction = UIAlertAction(title: notebook.name, style: .default) { (alertAction) in
-                    self.addNewNote(notebookName: alertAction.title!)
+                    self.addNewNote(notebookId: notebook.objectID)
                 }
                 actionSheetAlert.addAction(notebookAction)
             }
@@ -188,19 +189,20 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     @objc func addNewNoteToDefault() {
-        addNewNote(notebookName: DEFAULT_NOTEBOOK_NAME)
+        Note.add(name: DEFAULT_NOTE_NAME, in: nil)
     }
     
-    @objc func addNewNote(notebookName: String)  {
-        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        
-        Note.add(name: DEFAULT_NOTE_NAME, in: notebookName, using: privateMOC)
+    @objc func addNewNote(notebookId: NSManagedObjectID)  {
+        Note.add(name: DEFAULT_NOTE_NAME, in: notebookId)
     }
     
     @objc func showNotebooksActions() {
         let notebooksVC = NotebookTableViewController()
-        notebooksVC.dismiss(animated: true) {
-            try! self.fetchedResultController.performFetch()
+        notebooksVC.didClose = {
+            do {
+                try self.fetchedResultController.performFetch()
+            } catch { }
+            
             self.tableView.reloadData()
         }
         
@@ -230,26 +232,12 @@ extension NotesTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     
-    func addNewNotebook(name: String, canExist: Bool) {
-        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        let notebook = Notebook.named(name: name, in: privateMOC)
+    func createDefaultNotebook() {
+        let notebook = Notebook.currentDefault(in: nil)
 
-        // Si no existe, lo crea. Se usa el hilo principal para que espere antes de mostrar la pantalla
+        // Si no existe, lo crea
         if notebook == nil {
-            Notebook.add(name: name, in: privateMOC)
-            showAlert(title: "Notebook created", message: "The notebook was created successfuly", buttonText: "Ok")
-        } else if !canExist {
-            showAlert(title: "Notebook not created", message: "This notebook name already exists", buttonText: "Ok")
-        }
-    }
-    
-   
-    func showAlert(title: String, message: String, buttonText: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            let cancel = UIAlertAction(title: buttonText, style: .default, handler: nil)
-            alert.addAction(cancel)
-            self.present(alert, animated: true, completion: nil)
+            Notebook.add(name: DEFAULT_NOTEBOOK_NAME, isDefault: true)
         }
     }
 }

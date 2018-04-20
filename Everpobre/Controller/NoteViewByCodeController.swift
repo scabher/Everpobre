@@ -127,9 +127,15 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         
         // MARK: Navigation Controller
         navigationController?.isToolbarHidden = false
+        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
+        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
+        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
+        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
+        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
         
         let photoBarButton = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(pickPhoto))
-        
         let mapBarButton = UIBarButtonItem(title: "Map", style: .done, target: self, action: #selector(addLocation))
 
         // Para posicionar botones en el Toolbar
@@ -204,6 +210,35 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         UIView.animate(withDuration: 0.4) {
             self.view.layoutIfNeeded()
         }
+    }
+
+    @objc func moveNote()  {
+        // Modal para seleccionar el notebook
+        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Choose Notebook", comment: "Choose notebook to move notes"), message: nil, preferredStyle: .actionSheet)
+        let notebooks = Notebook.notebooks(in: nil)
+        
+        if (notebooks.fetchedObjects != nil && notebooks.fetchedObjects!.count > 0) {
+            for notebook in notebooks.fetchedObjects! {
+                if (notebook.objectID != sourceId) {
+                    let notebookAction = UIAlertAction(title: notebook.name, style: .default) { (alertAction) in
+                        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+                        Notebook.moveNotes(from: sourceId, to: notebook.objectID, in: privateMOC)
+                        Notebook.remove(id: sourceId, in: privateMOC)
+                    }
+                    actionSheetAlert.addAction(notebookAction)
+                }
+            }
+        }
+        
+        let removeAllNotes = UIAlertAction(title: NSLocalizedString("Remove all notes", comment: "Remove all notes from source notebook"), style: .destructive) { (alertAction) in
+            Notebook.remove(id: sourceId, in: nil)
+        }
+        actionSheetAlert.addAction(removeAllNotes)
+        
+        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .default, handler: nil)
+        actionSheetAlert.addAction(cancel)
+        
+        present(actionSheetAlert, animated: true, completion: nil)
     }
     
 //    @objc func userMoveImage(longPressGesture: UILongPressGestureRecognizer) {
@@ -287,7 +322,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
 
 //MARK: NotesTableViewController Delegate
 extension NoteViewByCodeController: NotesTableViewControllerDelegate {
-    func notesTableViewController(_ vc: NotesTableViewController, didSelectNote note: Note) {
+    func notesTableViewController(_ vc: NoteTableViewController, didSelectNote note: Note) {
         let collapsed = splitViewController?.isCollapsed ?? true
         
         self.note = note
@@ -374,13 +409,6 @@ extension NoteViewByCodeController: UIImagePickerControllerDelegate {
         self.imageViews.append(imageView)
         self.view.addConstraints(imgConstraints)
         NSLayoutConstraint.deactivate([bottomImgConstraint, rightImgConstraint])
-        
-
-        
-//        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(moveImage))
-//        doubleTapGesture.numberOfTapsRequired = 2
-//        imageView.addGestureRecognizer(doubleTapGesture)
-        
         
         picker.dismiss(animated: true, completion: nil)
     }

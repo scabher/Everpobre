@@ -34,15 +34,16 @@ extension Note {
         return super.value(forKey: key)
     }
     
-    static func add(name: String, in notebookName: String, using moc: NSManagedObjectContext) {
+    static func add(name: String, in notebookId: NSManagedObjectID?) {
+        let moc = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+        
         // Asíncrono
         moc.perform {
             // KVC
-            // Se busca el notebook según el nombre
-            let nb = Notebook.named(name: notebookName, in: moc)
-            
+            // Se busca el notebook según el ID o el default
+            let nb = notebookId != nil ? moc.object(with: notebookId!) as? Notebook : Notebook.currentDefault(in: moc)
             guard let notebook = nb else {
-                NSLog("Notebook name not found. Note not created.")
+                NSLog("Notebook id not found. Note not created.")
                 return
             }
             

@@ -9,19 +9,22 @@
 import UIKit
 import CoreData
 
+typealias DidClose = ()->()
+
 class NotebookTableViewController: UITableViewController {
     
     var fetchedResultController: NSFetchedResultsController<Notebook>!
+    var didClose: DidClose?
+    
     // Fetch Request
     let viewMOC = DataManager.sharedManager.persistentContainer.viewContext
+    
     
     init() {
         super.init(nibName: nil, bundle: Bundle(for: type(of: self)))
         
-        tableView.estimatedRowHeight = 44.0
-        tableView.rowHeight = UITableViewAutomaticDimension
-        
         title = "Notebooks"
+        tableView.register(UINib.init(nibName: "NotebookTableViewCell", bundle: nil), forCellReuseIdentifier: "notebookCellReuseId")
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -62,9 +65,11 @@ class NotebookTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let notebook = fetchedResultController.object(at: indexPath)
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier") as? NotebookTableViewCell ?? NotebookTableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "notebookCellReuseId") as? NotebookTableViewCell ?? NotebookTableViewCell()
         
+        cell.notebook = notebook
         cell.nameTextField.text = notebook.name
+        cell.isDefaultSwitch.isOn = notebook.isDefault
         
         return cell
     }
@@ -80,8 +85,12 @@ class NotebookTableViewController: UITableViewController {
         
         let notebook = fetchedResultController.object(at: indexPath)
         if editingStyle == .delete {
+            if (notebook.isDefault) {
+                notifyUser(title: "Default notebook", message: "The selected notebook is set as defaul and cannot be removed", buttonText: "Ok")
+                return
+            }
+            
             removeNotebook(notebook: notebook)
-            //tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
 }
@@ -98,28 +107,51 @@ extension NotebookTableViewController: NSFetchedResultsControllerDelegate {
  */
 extension NotebookTableViewController {
     @objc func close() {
-        self.dismiss(animated: true) {
-            do {
-                try self.fetchedResultController.performFetch()
-            } catch { }
+        dismiss(animated: true) {
+            guard let done = self.didClose else { return }
+            done()
         }
     }
     
     @objc func addNotebook() {
-        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        Notebook.add(name: "New Notebook", in: privateMOC)
+        Notebook.add(name: "New Notebook", isDefault: false)
     }
     
     func removeNotebook(notebook: Notebook) {
-        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-        if notebook.notes != nil && notebook.notes!.count > 0 {
-            
+        if notebook.notes == nil || notebook.notes!.count == 0 {
+            Notebook.remove(id: notebook.objectID, in: nil)
+            return
         }
         
-        Notebook.remove(name: notebook.name!, in: privateMOC)
-        do {
-            try self.fetchedResultController.performFetch()
-            tableView.reloadData()
-        } catch  { }
+        selectNotebookToMoveNotes(from: notebook.objectID)
+    }
+    
+    func selectNotebookToMoveNotes(from sourceId: NSManagedObjectID)  {
+        // Modal para seleccionar el notebook
+        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Choose Notebook", comment: "Choose notebook to move notes"), message: nil, preferredStyle: .actionSheet)
+        let notebooks = Notebook.notebooks(in: nil)
+        
+        if (notebooks.fetchedObjects != nil && notebooks.fetchedObjects!.count > 0) {
+            for notebook in notebooks.fetchedObjects! {
+                if (notebook.objectID != sourceId) {
+                    let notebookAction = UIAlertAction(title: notebook.name, style: .default) { (alertAction) in
+                        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+                        Notebook.moveNotes(from: sourceId, to: notebook.objectID, in: privateMOC)
+                        Notebook.remove(id: sourceId, in: privateMOC)
+                    }
+                    actionSheetAlert.addAction(notebookAction)
+                }
+            }
+        }
+        
+        let removeAllNotes = UIAlertAction(title: NSLocalizedString("Remove all notes", comment: "Remove all notes from source notebook"), style: .destructive) { (alertAction) in
+            Notebook.remove(id: sourceId, in: nil)
+        }
+        actionSheetAlert.addAction(removeAllNotes)
+        
+        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .default, handler: nil)
+        actionSheetAlert.addAction(cancel)
+        
+        present(actionSheetAlert, animated: true, completion: nil)
     }
 }

@@ -13,4 +13,11 @@ extension UIViewController {
     func wrappedInNavigation() -> UINavigationController {
         return UINavigationController(rootViewController: self)
     }
+    
+    func notifyUser(title: String, message: String, buttonText: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let cancel = UIAlertAction(title: buttonText, style: .default, handler: nil)
+        alert.addAction(cancel)
+        self.present(alert, animated: true, completion: nil)
+    }
 }
