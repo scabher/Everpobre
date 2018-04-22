@@ -13,6 +13,8 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     
     // Mark: - Properties
     let creationDateLabel = UILabel()
+    let creationDateDataLabel = UILabel()
+    let expirationDateLabel = UILabel()
     let expirationDateTextField = UITextField()
     let titleTextField = UITextField()
     let noteTextView = UITextView()
@@ -33,13 +35,23 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         self.title = "Note Details"
         backView.backgroundColor = .white
         
-        // Configure Label
-        creationDateLabel.text = "15/02/2018"
+        // Configure Creation date Label
+        creationDateLabel.text = "Created"
+        creationDateLabel.textColor = .blue
+        creationDateLabel.font.withSize(10)
         backView.addSubview(creationDateLabel)
         
+        creationDateDataLabel.text = "15.02.2018"
+        backView.addSubview(creationDateDataLabel)
+        
         // Configure Expiration Date field
+        expirationDateLabel.text = "Expired"
+        expirationDateLabel.textColor = .blue
+        expirationDateLabel.font.withSize(10)
+        backView.addSubview(expirationDateLabel)
+        
         expirationDateTextField.placeholder = "Expired at"
-        expirationDateTextField.text = "24/12/2018"
+        expirationDateTextField.text = "24.12.2018"
         backView.addSubview(expirationDateTextField)
         
         // Configure titleTextField
@@ -50,20 +62,21 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         noteTextView.text = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda."
         backView.addSubview(noteTextView)
         
-     
         
         // MARK: Autolayout
         // No traslada las autoresize rules to constraints
         creationDateLabel.translatesAutoresizingMaskIntoConstraints = false
+        creationDateDataLabel.translatesAutoresizingMaskIntoConstraints = false
         noteTextView.translatesAutoresizingMaskIntoConstraints = false
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        expirationDateLabel.translatesAutoresizingMaskIntoConstraints = false
         expirationDateTextField.translatesAutoresizingMaskIntoConstraints = false
         
-        let viewDict = ["dateLabel": creationDateLabel, "noteTextView": noteTextView, "titleTextField": titleTextField, "expirationDate": expirationDateTextField]
+        let viewDict = ["dateLabel": creationDateLabel, "dateDataLabel": creationDateDataLabel, "noteTextView": noteTextView, "titleTextField": titleTextField, "expirationDateLabel": expirationDateLabel, "expirationDate": expirationDateTextField]
         
         // Horizontal
         var constraints = NSLayoutConstraint.constraints(
-            withVisualFormat: "|-10-[titleTextField]-10-[expirationDate]-10-[dateLabel]-10-|",
+            withVisualFormat: "|-10-[titleTextField]-10-[expirationDateLabel]-3-[expirationDate]-10-[dateLabel]-3-[dateDataLabel]-10-|",
             options: [],
             metrics: nil,
             views: viewDict)
@@ -80,7 +93,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             options: [],
             metrics: nil,
             views: viewDict))
-        
+
         constraints.append(NSLayoutConstraint(
             item: creationDateLabel,
             attribute: .top,
@@ -91,10 +104,28 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             constant: 10))
         
         constraints.append(NSLayoutConstraint(
-            item: expirationDateTextField,
+            item: creationDateDataLabel,
             attribute: .lastBaseline,
             relatedBy: .equal,
             toItem: creationDateLabel,
+            attribute: .lastBaseline,
+            multiplier: 1,
+            constant: 0))
+
+        constraints.append(NSLayoutConstraint(
+            item: expirationDateLabel,
+            attribute: .lastBaseline,
+            relatedBy: .equal,
+            toItem: creationDateDataLabel,
+            attribute: .lastBaseline,
+            multiplier: 1,
+            constant: 0))
+        
+        constraints.append(NSLayoutConstraint(
+            item: expirationDateTextField,
+            attribute: .lastBaseline,
+            relatedBy: .equal,
+            toItem: expirationDateLabel,
             attribute: .lastBaseline,
             multiplier: 1,
             constant: 0))
@@ -103,7 +134,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             item: titleTextField,
             attribute: .lastBaseline,
             relatedBy: .equal,
-            toItem: creationDateLabel,
+            toItem: creationDateDataLabel,
             attribute: .lastBaseline,
             multiplier: 1,
             constant: 0))
@@ -289,7 +320,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         // Model -> View
         titleTextField.text = note?.title
         noteTextView.text = note?.content
-        creationDateLabel.text = dateFormatter.string(from: creationDate)
+        creationDateDataLabel.text = dateFormatter.string(from: creationDate)
         expirationDateTextField.text =  dateFormatter.string(from: expirationDate)
         
         noteImageViewControllers = [NoteImageViewController]()
