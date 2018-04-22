@@ -6,7 +6,7 @@
         <attribute name="expiredAtTI" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="images" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="NoteImage" inverseName="note" inverseEntity="NoteImage" syncable="YES"/>
-        <relationship name="maps" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="NoteMap" inverseName="note" inverseEntity="NoteMap" syncable="YES"/>
+        <relationship name="maps" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="NoteMap" inverseName="note" inverseEntity="NoteMap" syncable="YES"/>
         <relationship name="notebook" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Notebook" inverseName="notes" inverseEntity="Notebook" syncable="YES"/>
     </entity>
     <entity name="Notebook" representedClassName="Notebook" syncable="YES" codeGenerationType="class">
@@ -30,9 +30,9 @@
         <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="maps" inverseEntity="Note" syncable="YES"/>
     </entity>
     <elements>
-        <element name="NoteImage" positionX="-279" positionY="200" width="128" height="135"/>
         <element name="Note" positionX="-54" positionY="9" width="128" height="150"/>
         <element name="Notebook" positionX="-308" positionY="27" width="128" height="90"/>
+        <element name="NoteImage" positionX="-279" positionY="200" width="128" height="135"/>
         <element name="NoteMap" positionX="-180" positionY="162" width="128" height="120"/>
     </elements>
 </model>

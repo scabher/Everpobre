@@ -261,7 +261,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     
     @objc func addLocation() {
 
-        let coord = CLLocationCoordinate2D(latitude: note?.maps?.latitude ?? 0, longitude: note?.maps?.longitude ?? 0)
+        let coord = CLLocationCoordinate2D(latitude: 0, longitude: 0)
         let mapView = SelectionMapViewController(coord)
         mapView.delegate = self
         
@@ -294,6 +294,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         expirationDateTextField.text =  dateFormatter.string(from: expirationDate)
         
         noteImageViewControllers = [NoteImageViewController]()
+        noteMapViewControllers = [NoteMapViewController]()
         
         if note?.images != nil && (note?.images?.count)! > 0 {
             for noteImage in note?.images as! Set<NoteImage> {
@@ -307,6 +308,18 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
                                                                       parentController: self)
                 noteImageViewController.managedObject = noteImage
                 noteImageViewController.showInNoteView()
+            }
+        }
+        
+        if note?.maps != nil && (note?.maps?.count)! > 0 {
+            for noteMap in note?.maps as! Set<NoteMap> {
+                let noteMapViewController = NoteMapViewController(position: CGPoint(x: Int(noteMap.positionX),
+                                                                                        y: Int(noteMap.positionY)),
+                                                                  latitude: CGFloat(noteMap.latitude),
+                                                                  longitude: CGFloat(noteMap.longitude),                                                                                                                    relatedToView: noteTextView,
+                                                                      parentController: self)
+                noteMapViewController.managedObject = noteMap
+                noteMapViewController.showInNoteView()
             }
         }
     }
