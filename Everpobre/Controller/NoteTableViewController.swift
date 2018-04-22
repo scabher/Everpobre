@@ -15,7 +15,7 @@ let EXPIRATION_DELTA: Double = 60 * 60 * 24 * 30
 
 
 // Delegado para comunicar este VC con el VC del detalle de la nota
-protocol NotesTableViewControllerDelegate: class {
+protocol NoteTableViewControllerDelegate: class {
     // should, will, did
     func notesTableViewController(_ vc: NoteTableViewController, didSelectNote: Note)
 }
@@ -26,7 +26,7 @@ class NoteTableViewController: UITableViewController {
     // var observer: NSObjectProtocol?
     
     var fetchedResultController: NSFetchedResultsController<Note>!
-    weak var delegate: NotesTableViewControllerDelegate?
+    weak var delegate: NoteTableViewControllerDelegate?
     
     // Fetch Request
     let viewMOC = DataManager.sharedManager.persistentContainer.viewContext

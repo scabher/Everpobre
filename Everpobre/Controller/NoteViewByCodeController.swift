@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 
 class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate {
     
@@ -15,7 +16,8 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     let expirationDateTextField = UITextField()
     let titleTextField = UITextField()
     let noteTextView = UITextView()
-    var imageViews = [UIImageView]()
+    var noteImageViewControllers = [NoteImageViewController]()
+    var noteMapViewControllers = [NoteMapViewController]()
     
     var topImgConstraint: NSLayoutConstraint!
     var bottomImgConstraint: NSLayoutConstraint!
@@ -48,10 +50,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         noteTextView.text = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda."
         backView.addSubview(noteTextView)
         
-        // Configure imageView
-        //imageView.backgroundColor = .red
-        //backView.addSubview(imageView)
-        
+     
         
         // MARK: Autolayout
         // No traslada las autoresize rules to constraints
@@ -59,7 +58,6 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         noteTextView.translatesAutoresizingMaskIntoConstraints = false
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
         expirationDateTextField.translatesAutoresizingMaskIntoConstraints = false
-        //imageView.translatesAutoresizingMaskIntoConstraints = false
         
         let viewDict = ["dateLabel": creationDateLabel, "noteTextView": noteTextView, "titleTextField": titleTextField, "expirationDate": expirationDateTextField]
         
@@ -82,11 +80,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             options: [],
             metrics: nil,
             views: viewDict))
-
-        // Option A
-        // dateLabel.topAnchor.constraint(equalTo: backView.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         
-        // Option B
         constraints.append(NSLayoutConstraint(
             item: creationDateLabel,
             attribute: .top,
@@ -127,19 +121,11 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         
         // MARK: Navigation Controller
         navigationController?.isToolbarHidden = false
-        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
-        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
-        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
-        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
-        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
         
         let photoBarButton = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(pickPhoto))
         let mapBarButton = UIBarButtonItem(title: "Map", style: .done, target: self, action: #selector(addLocation))
 
         // Para posicionar botones en el Toolbar
-        //let fixSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 
         self.setToolbarItems([photoBarButton, flexibleSpace, mapBarButton], animated: false)
@@ -158,12 +144,6 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         swipeGesture.direction = .down
         
         view.addGestureRecognizer(swipeGesture)
-        
-        
-        // Se puede hacer con un UIPanGestureRecognizer, aunque en este caso es mejor el LongPress
-        // porque se activa cuando lleva pulsado un rato, así se evita moverlo por error.
-//        let moveViewGesture = UILongPressGestureRecognizer(target: self, action: #selector(userMoveImage))
-//        imageView.addGestureRecognizer(moveViewGesture)
         
         // MARK: About Note
         if note != nil {
@@ -214,6 +194,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
 
     @objc func moveNote()  {
         // Modal para seleccionar el notebook
+        let sourceId = note!.notebook!.objectID
         let actionSheetAlert = UIAlertController(title: NSLocalizedString("Choose Notebook", comment: "Choose notebook to move notes"), message: nil, preferredStyle: .actionSheet)
         let notebooks = Notebook.notebooks(in: nil)
         
@@ -221,19 +202,14 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             for notebook in notebooks.fetchedObjects! {
                 if (notebook.objectID != sourceId) {
                     let notebookAction = UIAlertAction(title: notebook.name, style: .default) { (alertAction) in
-                        let privateMOC = DataManager.sharedManager.persistentContainer.newBackgroundContext()
-                        Notebook.moveNotes(from: sourceId, to: notebook.objectID, in: privateMOC)
-                        Notebook.remove(id: sourceId, in: privateMOC)
+                        Notebook.moveNote(with: self.note!.objectID, from: sourceId, to: notebook.objectID, in: nil)
+                        let notebookButtton = self.navigationItem.rightBarButtonItem?.customView as! UIButton
+                        notebookButtton.setTitle(alertAction.title!, for: UIControlState.normal)
                     }
                     actionSheetAlert.addAction(notebookAction)
                 }
             }
         }
-        
-        let removeAllNotes = UIAlertAction(title: NSLocalizedString("Remove all notes", comment: "Remove all notes from source notebook"), style: .destructive) { (alertAction) in
-            Notebook.remove(id: sourceId, in: nil)
-        }
-        actionSheetAlert.addAction(removeAllNotes)
         
         let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .default, handler: nil)
         actionSheetAlert.addAction(cancel)
@@ -241,36 +217,20 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         present(actionSheetAlert, animated: true, completion: nil)
     }
     
-//    @objc func userMoveImage(longPressGesture: UILongPressGestureRecognizer) {
-//        let location = longPressGesture.location(in: noteTextView)  // Porque las constraints están respecto a noteTextView
-//
-//        switch longPressGesture.state {
-//        case .began:
-//            closeKeyboard()
-//            relativePoint = longPressGesture.location(in: longPressGesture.view)
-//            UIView.animate(withDuration: 0.1, animations: {
-//                self.imageView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
-//            })
-//        case .changed:
-//            leftImgConstraint.constant = location.x - relativePoint.x
-//            topImgConstraint.constant = location.y - relativePoint.y
-//        case .ended, .cancelled:
-//            UIView.animate(withDuration: 0.1, animations: {
-//                self.imageView.transform = CGAffineTransform.init(scaleX: 1, y: 1)
-//            })
-//        default:
-//            break
-//        }
-//    }
-    
+   
     // La vista ha cambiado el layout de una subview
     override func viewDidLayoutSubviews() {
-//        // Para que el texto del text area rodee el cuadrado, se excluye el cuadrado
-//        var rect = view.convert(imageView.frame, to: noteTextView)
-//        rect = rect.insetBy(dx: -15, dy: -15)   // Para agrandar el rectángulo
-//
-//        let paths = UIBezierPath(rect: rect)
-//        noteTextView.textContainer.exclusionPaths = [paths]
+        var paths = [UIBezierPath]()
+        
+        // Para que el texto del text area rodee las imágenes, se excluye el cuadrado
+        for imageController in noteImageViewControllers {
+            var rect = view.convert(imageController.imageView.frame, to: noteTextView)
+            rect = rect.insetBy(dx: -15, dy: -15)   // Para agrandar el rectángulo
+            paths.append(UIBezierPath(rect: rect))
+            
+        }
+
+        noteTextView.textContainer.exclusionPaths = paths
     }
     
     
@@ -300,7 +260,12 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     }
     
     @objc func addLocation() {
+
+        let coord = CLLocationCoordinate2D(latitude: note?.maps?.latitude ?? 0, longitude: note?.maps?.longitude ?? 0)
+        let mapView = SelectionMapViewController(coord)
+        mapView.delegate = self
         
+        present(mapView.wrappedInNavigation(), animated: true, completion: nil)
     }
     
     // Mark: - Sync
@@ -312,16 +277,43 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         let creationDate = Date(timeIntervalSince1970: (note?.createdAtTI)!)
         let expirationDate = Date(timeIntervalSince1970: (note?.expiredAtTI)!)
         
+        // Botón para cambiar de notebook
+        if (note != nil && note?.notebook != nil) {
+            let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(moveNote))
+            let notebookButton = UIButton(type: UIButtonType.custom)
+            notebookButton.setTitle(note!.notebook!.name, for: UIControlState.normal)
+            notebookButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
+            notebookButton.addGestureRecognizer(notebookButtonTapGesture)
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: notebookButton)
+        }
+        
         // Model -> View
         titleTextField.text = note?.title
         noteTextView.text = note?.content
         creationDateLabel.text = dateFormatter.string(from: creationDate)
         expirationDateTextField.text =  dateFormatter.string(from: expirationDate)
+        
+        noteImageViewControllers = [NoteImageViewController]()
+        
+        if note?.images != nil && (note?.images?.count)! > 0 {
+            for noteImage in note?.images as! Set<NoteImage> {
+                let image = UIImage(data: noteImage.data!)
+                let noteImageViewController = NoteImageViewController(image: image!,
+                                                                      position: CGPoint(x: Int(noteImage.positionX),
+                                                                                        y: Int(noteImage.positionY)),
+                                                                      scale: CGFloat(noteImage.scale),
+                                                                      rotation: CGFloat(noteImage.rotation),
+                                                                      relatedToView: noteTextView,
+                                                                      parentController: self)
+                noteImageViewController.managedObject = noteImage
+                noteImageViewController.showInNoteView()
+            }
+        }
     }
 }
 
 //MARK: NotesTableViewController Delegate
-extension NoteViewByCodeController: NotesTableViewControllerDelegate {
+extension NoteViewByCodeController: NoteTableViewControllerDelegate {
     func notesTableViewController(_ vc: NoteTableViewController, didSelectNote note: Note) {
         let collapsed = splitViewController?.isCollapsed ?? true
         
@@ -340,77 +332,34 @@ extension NoteViewByCodeController: UIImagePickerControllerDelegate {
                                didFinishPickingMediaWithInfo info: [String : Any]) {
 
         let image = info[UIImagePickerControllerOriginalImage] as! UIImage
-        let imageView = UIImageView()
-
-        self.view.addSubview(imageView)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Img View Constraints
-        topImgConstraint = NSLayoutConstraint(
-            item: imageView,
-            attribute: .top,
-            relatedBy: .equal,
-            toItem: noteTextView,
-            attribute: .top,
-            multiplier: 1,
-            constant: 20)
+        guard UIImageJPEGRepresentation(image, 1) != nil else {
+            picker.dismiss(animated: true, completion: nil)
+            return
+        }
         
-        bottomImgConstraint = NSLayoutConstraint(
-            item: imageView,
-            attribute: .bottom,
-            relatedBy: .equal,
-            toItem: noteTextView,
-            attribute: .bottom,
-            multiplier: 1,
-            constant: -20)
-        
-        leftImgConstraint = NSLayoutConstraint(
-            item: imageView,
-            attribute: .left,
-            relatedBy: .equal,
-            toItem: noteTextView,
-            attribute: .left,
-            multiplier: 1,
-            constant: 20)
-        
-        rightImgConstraint = NSLayoutConstraint(
-            item: imageView,
-            attribute: .right,
-            relatedBy: .equal,
-            toItem: noteTextView,
-            attribute: .right,
-            multiplier: 1,
-            constant: -20)
-        
-        var imgConstraints = [NSLayoutConstraint(
-            item: imageView,
-            attribute: .width,
-            relatedBy: .equal,
-            toItem: nil,
-            attribute: .notAnAttribute,
-            multiplier: 0,
-            constant: 100)]
-        
-        imgConstraints.append(NSLayoutConstraint(
-            item: imageView,
-            attribute: .height,
-            relatedBy: .equal,
-            toItem: nil,
-            attribute: .notAnAttribute,
-            multiplier: 0,
-            constant: 150))
-        
-        imgConstraints.append(contentsOf: [topImgConstraint, bottomImgConstraint, leftImgConstraint, rightImgConstraint])
-        
-        imageView.backgroundColor = .red;
-        imageView.image = image
-        imageView.isUserInteractionEnabled = true // Está desactivado por defecto
-        
-        self.imageViews.append(imageView)
-        self.view.addConstraints(imgConstraints)
-        NSLayoutConstraint.deactivate([bottomImgConstraint, rightImgConstraint])
+        let imgPadding = CGFloat(20 + (5 * noteImageViewControllers.count + 1))
+        let noteImageViewController = NoteImageViewController(image: image,
+                                                              position: CGPoint(x: imgPadding, y: imgPadding),
+                                                              scale: CGFloat(1),
+                                                              rotation: CGFloat(0),
+                                                              relatedToView: noteTextView,
+                                                              parentController: self)
+        NoteImage.add(noteImageMap: noteImageViewController.noteImageMapping, to: note!.objectID) { noteImageManaged in
+            noteImageViewController.managedObject = noteImageManaged
+            noteImageViewController.showInNoteView()
+        }
         
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+// MARK: Map Delegates
+extension NoteViewByCodeController: SelectionMapViewControllerDelegate {
+    func selectionMapViewControl(_ viewControl: SelectionMapViewController, didSelectionLocation: CLLocationCoordinate2D) {
+//        NoteMap.update(id: <#T##NSManagedObjectID#>, noteMapMapping: <#T##NoteMapMapping#>)
+//        self.note?.update(lat: didSelectionLocation.latitude, long: didSelectionLocation.longitude)
+//        self.updateMapLocation()
     }
 }
 
@@ -421,3 +370,4 @@ extension NoteViewByCodeController: UITextFieldDelegate {
         try! note?.managedObjectContext?.save()
     }
 }
+

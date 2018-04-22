@@ -9,8 +9,13 @@
 /* Begin PBXBuildFile section */
 		3F2453BE2087C76C00C9FB26 /* NotebookTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */; };
 		3F2453BF2087C76C00C9FB26 /* NotebookTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */; };
+		3F48FF09208D39470004CF66 /* NoteMap+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F48FF08208D39470004CF66 /* NoteMap+CRUD.swift */; };
+		3F48FF0B208D3A6B0004CF66 /* NoteMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F48FF0A208D3A6B0004CF66 /* NoteMapViewController.swift */; };
+		3F48FF0D208D3FB10004CF66 /* SelectionMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F48FF0C208D3FB10004CF66 /* SelectionMapViewController.swift */; };
 		3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */; };
 		3F57A95A205871D300000633 /* Note+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F57A959205871D300000633 /* Note+CRUD.swift */; };
+		3F719D51208BA09E008E8721 /* NoteImage+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F719D50208BA09E008E8721 /* NoteImage+CRUD.swift */; };
+		3F719D53208BA7D4008E8721 /* NoteImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F719D52208BA7D4008E8721 /* NoteImageViewController.swift */; };
 		3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DED205718BF005407AE /* Everpobre.xcdatamodeld */; };
 		3F786DF1205720A3005407AE /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DF0205720A3005407AE /* DataManager.swift */; };
 		3F786DF320572F95005407AE /* NoteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F786DF220572F95005407AE /* NoteTableViewController.swift */; };
@@ -21,7 +26,7 @@
 		3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */; };
 		3FC0AE9F2055EFD4002A6F34 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */; };
 		3FE471A22087FEF000D19985 /* Notebook+CRUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */; };
-		49A09D11208911C0002D2E7A /* NotebookTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */; };
+		49A09D11208911C0002D2E7A /* NotebookTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A09D0F208911C0002D2E7A /* NotebookTableViewCellController.swift */; };
 		49A09D12208911C0002D2E7A /* NotebookTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49A09D10208911C0002D2E7A /* NotebookTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
@@ -38,8 +43,13 @@
 /* Begin PBXFileReference section */
 		3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookTableViewController.swift; sourceTree = "<group>"; };
 		3F2453BD2087C76C00C9FB26 /* NotebookTableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotebookTableViewController.xib; sourceTree = "<group>"; };
+		3F48FF08208D39470004CF66 /* NoteMap+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteMap+CRUD.swift"; sourceTree = "<group>"; };
+		3F48FF0A208D3A6B0004CF66 /* NoteMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteMapViewController.swift; sourceTree = "<group>"; };
+		3F48FF0C208D3FB10004CF66 /* SelectionMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionMapViewController.swift; sourceTree = "<group>"; };
 		3F4F89A02078342200DA0B4C /* UIViewController+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Additions.swift"; sourceTree = "<group>"; };
 		3F57A959205871D300000633 /* Note+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CRUD.swift"; sourceTree = "<group>"; };
+		3F719D50208BA09E008E8721 /* NoteImage+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteImage+CRUD.swift"; sourceTree = "<group>"; };
+		3F719D52208BA7D4008E8721 /* NoteImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteImageViewController.swift; sourceTree = "<group>"; };
 		3F786DEE205718BF005407AE /* Everpobre.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Everpobre.xcdatamodel; sourceTree = "<group>"; };
 		3F786DF0205720A3005407AE /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		3F786DF220572F95005407AE /* NoteTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTableViewController.swift; sourceTree = "<group>"; };
@@ -53,7 +63,7 @@
 		3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteViewByCodeController.swift; sourceTree = "<group>"; };
 		3FC0AE9E2055EFD4002A6F34 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notebook+CRUD.swift"; sourceTree = "<group>"; };
-		49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookTableViewCell.swift; sourceTree = "<group>"; };
+		49A09D0F208911C0002D2E7A /* NotebookTableViewCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookTableViewCellController.swift; sourceTree = "<group>"; };
 		49A09D10208911C0002D2E7A /* NotebookTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotebookTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,6 +98,8 @@
 			children = (
 				3F57A959205871D300000633 /* Note+CRUD.swift */,
 				3FE471A12087FEF000D19985 /* Notebook+CRUD.swift */,
+				3F719D50208BA09E008E8721 /* NoteImage+CRUD.swift */,
+				3F48FF08208D39470004CF66 /* NoteMap+CRUD.swift */,
 			);
 			path = ManagedObject;
 			sourceTree = "<group>";
@@ -151,7 +163,10 @@
 				3F7E041D2051F0F900FB37A8 /* NoteViewByCodeController.swift */,
 				3F786DF220572F95005407AE /* NoteTableViewController.swift */,
 				3F2453BC2087C76C00C9FB26 /* NotebookTableViewController.swift */,
-				49A09D0F208911C0002D2E7A /* NotebookTableViewCell.swift */,
+				49A09D0F208911C0002D2E7A /* NotebookTableViewCellController.swift */,
+				3F719D52208BA7D4008E8721 /* NoteImageViewController.swift */,
+				3F48FF0A208D3A6B0004CF66 /* NoteMapViewController.swift */,
+				3F48FF0C208D3FB10004CF66 /* SelectionMapViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -265,11 +280,16 @@
 				3F786DEF205718BF005407AE /* Everpobre.xcdatamodeld in Sources */,
 				3F57A95A205871D300000633 /* Note+CRUD.swift in Sources */,
 				3F786DF1205720A3005407AE /* DataManager.swift in Sources */,
-				49A09D11208911C0002D2E7A /* NotebookTableViewCell.swift in Sources */,
+				3F48FF09208D39470004CF66 /* NoteMap+CRUD.swift in Sources */,
+				3F719D53208BA7D4008E8721 /* NoteImageViewController.swift in Sources */,
+				49A09D11208911C0002D2E7A /* NotebookTableViewCellController.swift in Sources */,
 				3F2453BE2087C76C00C9FB26 /* NotebookTableViewController.swift in Sources */,
 				3F7E041E2051F0F900FB37A8 /* NoteViewByCodeController.swift in Sources */,
 				3F4F89A12078342200DA0B4C /* UIViewController+Additions.swift in Sources */,
 				3F786DF320572F95005407AE /* NoteTableViewController.swift in Sources */,
+				3F719D51208BA09E008E8721 /* NoteImage+CRUD.swift in Sources */,
+				3F48FF0D208D3FB10004CF66 /* SelectionMapViewController.swift in Sources */,
+				3F48FF0B208D3A6B0004CF66 /* NoteMapViewController.swift in Sources */,
 				3F7E041B2051CF9400FB37A8 /* NoteViewController.swift in Sources */,
 				3F7E03FA2051CEF300FB37A8 /* AppDelegate.swift in Sources */,
 			);

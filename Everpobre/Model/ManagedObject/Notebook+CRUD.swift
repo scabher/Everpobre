@@ -82,7 +82,7 @@ extension Notebook {
         moc.perform {
             let nb = moc.object(with: id) as? Notebook
             guard let notebook = nb else {
-                NSLog("Notebook to remove not found")
+                NSLog("Notebook to update not found")
                 return
             }
             
@@ -167,6 +167,34 @@ extension Notebook {
                 notebookTarget.addToNotes(note)
                 notebookSource.removeFromNotes(note)
             }
+            
+            // Se guarda en Core Data
+            do {
+                try moc.save()
+            }
+            catch {
+                NSLog("Error updating notebook: \(error)")
+            }
+        }
+    }
+    
+    static func moveNote(with id: NSManagedObjectID, from sourceId: NSManagedObjectID, to targetId: NSManagedObjectID, in moc: NSManagedObjectContext?) {
+        let moc = moc ?? DataManager.sharedManager.persistentContainer.newBackgroundContext()
+        
+        moc.perform {
+            let n = moc.object(with: id) as? Note
+            let nbSource = moc.object(with: sourceId) as? Notebook
+            let nbTarget = moc.object(with: targetId) as? Notebook
+            guard let note = n,
+                let notebookSource = nbSource,
+                let notebookTarget = nbTarget else {
+                    NSLog("Note canot be move to selected notebook")
+                    return
+            }
+            
+            note.notebook = nbTarget
+            notebookTarget.addToNotes(note)
+            notebookSource.removeFromNotes(note)
             
             // Se guarda en Core Data
             do {
