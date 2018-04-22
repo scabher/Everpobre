@@ -22,7 +22,7 @@ extension NoteMap {
                 "positionX": noteMapMapping.position.x,
                 "positionY": noteMapMapping.position.y,
                 "latitude": noteMapMapping.latitude,
-                "longitude": noteMapMapping.logntitude,
+                "longitude": noteMapMapping.longitude,
                 "note": note
                 ] as [String : Any]
             noteMap.setValuesForKeys(dict)
@@ -53,7 +53,7 @@ extension NoteMap {
             noteMap.positionX = Int64(noteMapMapping.position.x)
             noteMap.positionY = Int64(noteMapMapping.position.y)
             noteMap.latitude = Double(noteMapMapping.latitude)
-            noteMap.longitude = Double(noteMapMapping.logntitude)
+            noteMap.longitude = Double(noteMapMapping.longitude)
             
             // Se guarda en Core Data
             do {

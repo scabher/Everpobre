@@ -357,9 +357,17 @@ extension NoteViewByCodeController: UIImagePickerControllerDelegate {
 // MARK: Map Delegates
 extension NoteViewByCodeController: SelectionMapViewControllerDelegate {
     func selectionMapViewControl(_ viewControl: SelectionMapViewController, didSelectionLocation: CLLocationCoordinate2D) {
-//        NoteMap.update(id: <#T##NSManagedObjectID#>, noteMapMapping: <#T##NoteMapMapping#>)
-//        self.note?.update(lat: didSelectionLocation.latitude, long: didSelectionLocation.longitude)
-//        self.updateMapLocation()
+        let mapPadding = CGFloat(50 + (5 * noteImageViewControllers.count + 1))
+        let noteMapViewController = NoteMapViewController(position: CGPoint(x: mapPadding, y: mapPadding),
+                                                          latitude: CGFloat(didSelectionLocation.latitude),
+                                                          longitude: CGFloat(didSelectionLocation.longitude),
+                                                          relatedToView: noteTextView,
+                                                          parentController: self)
+        
+        NoteMap.add(noteMapMapping: noteMapViewController.noteMapMapping, to: note!.objectID) { noteMapManaged in
+            noteMapViewController.managedObject = noteMapManaged
+            noteMapViewController.showInNoteView()
+        }
     }
 }
 
