@@ -271,11 +271,10 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     // Mark: - Sync
     func syncModelWithView() {
         let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US")
-        dateFormatter.setLocalizedDateFormatFromTemplate("dd-mm-yyyy")
+        dateFormatter.dateFormat = "dd.MM.yyyy"
         
-        let creationDate = Date(timeIntervalSince1970: (note?.createdAtTI)!)
-        let expirationDate = Date(timeIntervalSince1970: (note?.expiredAtTI)!)
+        let creationDate = Date(timeIntervalSince1970: TimeInterval(note?.createdAtTI ?? 0))
+        let expirationDate = Date(timeIntervalSince1970: TimeInterval(note?.expiredAtTI ?? 0))
         
         // Botón para cambiar de notebook
         if (note != nil && note?.notebook != nil) {
