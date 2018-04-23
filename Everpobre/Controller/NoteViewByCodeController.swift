@@ -160,15 +160,6 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 
         self.setToolbarItems([photoBarButton, flexibleSpace, mapBarButton], animated: false)
-        
-        /*
-        // Lo que se puede modificar de una vista en una animación
-         
-        imageView.frame = CGRect(x: 15, y: 50, width: 100, height: 150)
-        imageView.bounds = CGRect(x: 0, y: 0, width: 100, height: 150)
-        imageView.center = CGPoint(x: 15+100/2, y: 50+150/2)
-        imageView.transform = CGAffineTransform(rotationAngle: 45)
-        */
 
         // MARK: Gestures
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(closeKeyboard))
@@ -357,10 +348,27 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
 
 //MARK: NotesTableViewController Delegate
 extension NoteViewByCodeController: NoteTableViewControllerDelegate {
-    func notesTableViewController(_ vc: NoteTableViewController, didSelectNote note: Note) {
+    func notesTableViewController(_ vc: NoteTableViewController, didSelectNote newNote: Note) {
         let collapsed = splitViewController?.isCollapsed ?? true
         
-        self.note = note
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        
+        guard let date = dateFormatter.date(from: self.expirationDateTextField.text!) else {
+            notifyUser(title: "Wrong date format", message: "The expiration date format is not a correct date. Please input a valid date.", buttonText: "OK")
+            return
+        }
+        
+        if let n = self.note {
+            let noteMapping = NoteMapping(title: n.title ?? "",
+                                          content: self.noteTextView.text,
+                                          createdAtTI: n.createdAtTI,
+                                          expiredAtTI: date.timeIntervalSince1970)
+            
+            Note.update(id: n.objectID, noteMapping: noteMapping)
+        }
+        
+        self.note = newNote
         syncModelWithView()
         
         if (collapsed) {

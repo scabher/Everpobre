@@ -9,6 +9,12 @@
 import Foundation
 import CoreData
 
+struct NoteMapping {
+    var title: String
+    var content: String
+    var createdAtTI: Double
+    var expiredAtTI: Double
+}
 
 extension Note {
     // 2ª opción si viene una clave que no está como propiedad en la clase
@@ -34,7 +40,7 @@ extension Note {
         return super.value(forKey: key)
     }
     
-    static func add(name: String, in notebookId: NSManagedObjectID?) {
+    static func add(noteMapping: NoteMapping, in notebookId: NSManagedObjectID?) {
         let moc = DataManager.sharedManager.persistentContainer.newBackgroundContext()
         
         // Asíncrono
@@ -49,9 +55,10 @@ extension Note {
             
             let note = NSEntityDescription.insertNewObject(forEntityName: "Note", into: moc) as! Note
             let dict = [
-                "main_title": name,
-                "createdAtTI": Date().timeIntervalSince1970,
-                "expiredAtTI": Date().timeIntervalSince1970 + EXPIRATION_DELTA,
+                "main_title": noteMapping.title,
+                "content": noteMapping.content,
+                "createdAtTI": noteMapping.createdAtTI,
+                "expiredAtTI": noteMapping.expiredAtTI,
                 "notebook": notebook
                 ] as [String : Any]
             note.setValuesForKeys(dict)
@@ -61,6 +68,30 @@ extension Note {
                 try moc.save()
             } catch {
                 NSLog("Error creating note: \(error)")
+            }
+        }
+    }
+    
+    static func update(id: NSManagedObjectID, noteMapping: NoteMapping) {
+        let moc = DataManager.sharedManager.persistentContainer.newBackgroundContext()
+        
+        moc.perform {
+            let n = moc.object(with: id) as? Note
+            guard let note = n else {
+                NSLog("Note to update not found")
+                return
+            }
+            
+            note.title = noteMapping.title
+            note.content = noteMapping.content
+            note.expiredAtTI = noteMapping.expiredAtTI
+            
+            // Se guarda en Core Data
+            do {
+                try moc.save()
+            }
+            catch {
+                NSLog("Error updating note: \(error)")
             }
         }
     }

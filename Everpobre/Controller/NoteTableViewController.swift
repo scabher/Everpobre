@@ -22,9 +22,6 @@ protocol NoteTableViewControllerDelegate: class {
 
 class NoteTableViewController: UITableViewController {
     
-    // var noteList:[Note] = []  // Se sustituye por fetchedResultController
-    // var observer: NSObjectProtocol?
-    
     var fetchedResultController: NSFetchedResultsController<Note>!
     weak var delegate: NoteTableViewControllerDelegate?
     
@@ -47,46 +44,10 @@ class NoteTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // TODO: Paso de parámetros a un selector
-//        let addButtonLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(selectNotebookForNewNote))
-//        let addButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(addNewNoteToDefault))
-//        let addNoteButton = UIButton(type: UIButtonType.custom)
-//        addNoteButton.setTitle("Add Note", for: UIControlState.normal)
-//        addNoteButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
-//        addNoteButton.addGestureRecognizer(addButtonTapGesture)
-//        addNoteButton.addGestureRecognizer(addButtonLongPressGesture)
-//        
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: addNoteButton)
-//        
-//        
-//        let notebookButtonTapGesture = UITapGestureRecognizer(target: self, action: #selector(showNotebooksActions))
-//        let manageNotebooksButton = UIButton(type: UIButtonType.custom)
-//        manageNotebooksButton.setTitle("Notebooks", for: UIControlState.normal)
-//        manageNotebooksButton.setTitleColor(UIColor.blue, for: UIControlState.normal)
-//        manageNotebooksButton.addGestureRecognizer(notebookButtonTapGesture)
-//        
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: manageNotebooksButton)
-        
-        //(barButtonSystemItem: .add, target: self, action: #selector(addNewNoteInDefault))
-        // navigationItem.rightBarButtonItem?.customView = addNoteButton
-        
-        // Si no existe el notebook 'Default' lo crea
         createDefaultNotebook()
         
-        // Forma antigua
-        // 1.- Creamos el objeto
-        //let fetchRequest = NSFetchRequest<Note>()
-        
-        // 2.- Qué entidad es de la que queremos objetos
-        //fetchRequest.entity = NSEntityDescription.entity(forEntityName: "Note", in: viewMOC)
-        
-        // Variante
-        //let fetchRequest: NSFetchRequest<Note> = Note.fetchRequest()
-        
-        // Otra variante más
         let fetchRequest = NSFetchRequest<Note>(entityName: "Note")
-        
-        // 3.- (Opcional) Indicamos orden
+
         let sectionSort = NSSortDescriptor(key: "notebook.name", ascending: true)
         let noteSortByTitle = NSSortDescriptor(key: "title", ascending: true)
         let noteSortByDate = NSSortDescriptor(key: "createdAtTI", ascending: true)
@@ -94,7 +55,6 @@ class NoteTableViewController: UITableViewController {
         
         fetchRequest.fetchBatchSize = 25
         
-        // 5.- Usando un Model Controller
         fetchedResultController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: viewMOC,
@@ -189,11 +149,19 @@ extension NoteTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     @objc func addNewNoteToDefault() {
-        Note.add(name: DEFAULT_NOTE_NAME, in: nil)
+        let noteMapping = NoteMapping(title: DEFAULT_NOTE_NAME,
+                                      content: "",
+                                      createdAtTI: Date().timeIntervalSince1970,
+                                      expiredAtTI: Date().timeIntervalSince1970 + EXPIRATION_DELTA)
+        Note.add(noteMapping: noteMapping, in: nil)
     }
     
     @objc func addNewNote(notebookId: NSManagedObjectID)  {
-        Note.add(name: DEFAULT_NOTE_NAME, in: notebookId)
+        let noteMapping = NoteMapping(title: DEFAULT_NOTE_NAME,
+                                      content: "",
+                                      createdAtTI: Date().timeIntervalSince1970,
+                                      expiredAtTI: Date().timeIntervalSince1970 + EXPIRATION_DELTA)
+        Note.add(noteMapping: noteMapping, in: notebookId)
     }
     
     @objc func showNotebooksActions() {
@@ -210,25 +178,6 @@ extension NoteTableViewController: NSFetchedResultsControllerDelegate {
         navNotebooksVC.modalPresentationStyle = .overCurrentContext
         
         self.present(navNotebooksVC, animated: true, completion: nil)
-        
-//        // Modal para seleccionar acciones sobre notebook
-//        let actionSheetAlert = UIAlertController(title: NSLocalizedString("Notebook actions", comment: "Choose notebook action"), message: nil, preferredStyle: .actionSheet)
-//
-//
-//        let newNotebookAction = UIAlertAction(title: NSLocalizedString("New Notebook", comment: "Create a new notebook"), style: .default) { (alertAction) in
-//            self.addNewNotebook(name: "TempName", canExist: false)
-//        }
-//        actionSheetAlert.addAction(newNotebookAction)
-//
-//        let removeNotebookAction = UIAlertAction(title: NSLocalizedString("Delete Notebook", comment: "Delete a notebook"), style: .default) { (alertAction) in
-//            self.removeNotebook(name: "Mi notebook")
-//        }
-//        actionSheetAlert.addAction(removeNotebookAction)
-//
-//        let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .destructive, handler: nil)
-//        actionSheetAlert.addAction(cancel)
-//
-//        present(actionSheetAlert, animated: true, completion: nil)
     }
     
     
