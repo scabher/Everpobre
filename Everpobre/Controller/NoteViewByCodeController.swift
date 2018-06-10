@@ -20,6 +20,7 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     let noteTextView = UITextView()
     var noteImageViewControllers = [NoteImageViewController]()
     var noteMapViewControllers = [NoteMapViewController]()
+    let dateFormatter = DateFormatter()
     
     var topImgConstraint: NSLayoutConstraint!
     var bottomImgConstraint: NSLayoutConstraint!
@@ -29,6 +30,18 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     var relativePoint: CGPoint!
     
     var note: Note?
+    
+    init(note: Note?) {
+        self.note = note
+        
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        
+        super.init(nibName: nil, bundle: Bundle(for: type(of: self)))
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func loadView() {
         let backView = UIView()
@@ -148,8 +161,6 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        titleTextField.delegate = self
-        
         // MARK: Navigation Controller
         navigationController?.isToolbarHidden = false
         
@@ -178,6 +189,12 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
         titleTextField.becomeFirstResponder()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        saveNote()
+    }
+    
     @objc func closeKeyboard()  {
         if noteTextView.isFirstResponder {      // Es la vista que está como primer respondedor
             noteTextView.resignFirstResponder() // Deja de ser el primer respondedor al gesto
@@ -258,6 +275,11 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     
     // MARK: Toolbar Buttons actions
     @objc func pickPhoto() {
+        if note == nil {
+            notifyUser(title: "Note not created", message: "You have to create a note before add images.", buttonText: "OK")
+            return
+        }
+        
         let actionSheetAlert = UIAlertController(title: NSLocalizedString("Add Photo", comment: "Add Photo"), message: nil, preferredStyle: .actionSheet)
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
@@ -282,7 +304,11 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
     }
     
     @objc func addLocation() {
-
+        if note == nil {
+            notifyUser(title: "Note not created", message: "You have to create a note before add maps.", buttonText: "OK")
+            return
+        }
+        
         let coord = CLLocationCoordinate2D(latitude: 0, longitude: 0)
         let mapView = SelectionMapViewController(coord)
         mapView.delegate = self
@@ -344,6 +370,22 @@ class NoteViewByCodeController: UIViewController, UINavigationControllerDelegate
             }
         }
     }
+    
+    private func saveNote() {
+        if let n = self.note {
+            guard let date = dateFormatter.date(from: self.expirationDateTextField.text!) else {
+                notifyUser(title: "Wrong date format", message: "The expiration date format is not a correct date. Please input a valid date.", buttonText: "OK")
+                return
+            }
+            
+            let noteMapping = NoteMapping(title: self.titleTextField.text ?? "",
+                                          content: self.noteTextView.text,
+                                          createdAtTI: n.createdAtTI,
+                                          expiredAtTI: date.timeIntervalSince1970)
+            
+            Note.update(id: n.objectID, noteMapping: noteMapping)
+        }
+    }
 }
 
 //MARK: NotesTableViewController Delegate
@@ -351,22 +393,7 @@ extension NoteViewByCodeController: NoteTableViewControllerDelegate {
     func notesTableViewController(_ vc: NoteTableViewController, didSelectNote newNote: Note) {
         let collapsed = splitViewController?.isCollapsed ?? true
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        
-        guard let date = dateFormatter.date(from: self.expirationDateTextField.text!) else {
-            notifyUser(title: "Wrong date format", message: "The expiration date format is not a correct date. Please input a valid date.", buttonText: "OK")
-            return
-        }
-        
-        if let n = self.note {
-            let noteMapping = NoteMapping(title: n.title ?? "",
-                                          content: self.noteTextView.text,
-                                          createdAtTI: n.createdAtTI,
-                                          expiredAtTI: date.timeIntervalSince1970)
-            
-            Note.update(id: n.objectID, noteMapping: noteMapping)
-        }
+        saveNote()
         
         self.note = newNote
         syncModelWithView()
@@ -419,14 +446,6 @@ extension NoteViewByCodeController: SelectionMapViewControllerDelegate {
             noteMapViewController.managedObject = noteMapManaged
             noteMapViewController.showInNoteView()
         }
-    }
-}
-
-// MARK: TextField Delegate
-extension NoteViewByCodeController: UITextFieldDelegate {
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        note?.title = textField.text
-        try! note?.managedObjectContext?.save()
     }
 }
 

@@ -18,9 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow()
         
-        // let noteVC = NoteViewController()            // Usando la vista definida en el .xib
-        let noteVC = NoteViewByCodeController()         // Con generación de la vista por código
-        let notesTVC = NoteTableViewController()       // Con vista de tabla
+        // let noteVC = NoteViewController()                    // Usando la vista definida en el .xib
+        let noteVC = NoteViewByCodeController(note: nil)     // Con generación de la vista por código
+        let notesTVC = NoteTableViewController()                // Con vista de tabla
         
         notesTVC.delegate = noteVC;
         

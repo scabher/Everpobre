@@ -109,10 +109,18 @@ class NoteTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // Se obtiene la nota seleccionada
         let note = fetchedResultController.object(at: indexPath)
+        let collapsed = splitViewController?.isCollapsed ?? true
         
-        // Usando splitViewController
-        // Se notifica la nueva nota seleccionada en la lista de notas
-        delegate?.notesTableViewController(self, didSelectNote: note)
+        if collapsed {
+            self.navigationController?.pushViewController(NoteViewByCodeController(note: note), animated: true)
+        }
+        else {
+            // Usando splitViewController
+            // Se notifica la nueva nota seleccionada en la lista de notas
+            delegate?.notesTableViewController(self, didSelectNote: note)
+        }
+
+
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
